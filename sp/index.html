@@ -97,6 +97,11 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
 #bjump{right:max(126px,calc(env(safe-area-inset-right) + 110px));bottom:18px;width:58px;height:58px}
 #brel{right:max(38px,calc(env(safe-area-inset-right) + 22px));bottom:164px;width:54px;height:54px}
 #bpause{right:max(14px,env(safe-area-inset-right));top:10px;width:40px;height:40px;letter-spacing:.2em}
+#bauto{right:max(12px,env(safe-area-inset-right));top:60px;width:44px;height:44px;font-size:11px;opacity:.55}
+#bauto.on{opacity:1;border-color:#d9a441;color:#d9a441}
+.opt{display:flex;align-items:center;gap:10px;margin-top:14px}.opt small{font-size:10px;letter-spacing:.2em;opacity:.6}
+.opt b{font-size:12px;font-weight:600;letter-spacing:.08em;padding:9px 14px;border:1.5px solid rgba(234,223,200,.35);color:rgba(234,223,200,.6);animation:none}
+.opt b.on{border-color:#d9a441;color:#d9a441}
 #stk{position:absolute;display:none;width:0;height:0}
 #stk:before{content:"";position:absolute;left:-58px;top:-58px;width:116px;height:116px;box-sizing:border-box;border-radius:50%;border:1.5px solid rgba(234,223,200,.35);background:rgba(10,14,18,.22)}
 #nub{position:absolute;left:-25px;top:-25px;width:50px;height:50px;border-radius:50%;background:rgba(234,223,200,.5)}
@@ -125,20 +130,20 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
     <table>
       <tr><td>画面の左側をなぞる</td><td>移動(前へ大きく倒すと走る)</td></tr>
       <tr><td>画面の右側をなぞる</td><td>視点</td></tr>
-      <tr><td>射撃ボタン</td><td>押している間 連射(押したまま視点も動く)</td></tr>
-      <tr><td>跳 / 装填 / II</td><td>ジャンプ / リロード / 一時停止</td></tr>
+      <tr><td>だいたい向ける</td><td>照準が寄って、自動で撃つ(右上「自動」で切替)</td></tr>
+      <tr><td>射撃 / 跳 / 装填 / II</td><td>手動で撃つ / ジャンプ / リロード / 一時停止</td></tr>
     </table>
     <div class="go">タップで開始</div>
-    <div class="note">形・質感・音は、すべてコードで生成(画像・音声ファイルなし)</div>
+    <div class="opt"><small>設定(タップで切替)</small><b data-o="fire"></b><b data-o="reload"></b></div>
   </section>
-  <section class="s-pause"><h2>一時停止</h2><div class="go">タップで再開</div></section>
+  <section class="s-pause"><h2>一時停止</h2><div class="opt" style="justify-content:center;margin:4px 0 22px"><b data-o="fire"></b><b data-o="reload"></b></div><div class="go">タップで再開</div></section>
   <section class="s-dead"><h2>倒れた</h2><div class="en" style="margin-left:0">SIGNAL LOST</div><div class="go">タップで再開</div></section>
   <section class="s-clear"><h2>脱出</h2><div class="en" style="margin-left:0">YOU MADE IT OUT</div>
     <div class="stats"><div><small>時間</small><b class="mono" id="st1">-</b></div><div><small>命中率</small><b class="mono" id="st2">-</b></div><div><small>受けたダメージ</small><b class="mono" id="st3">-</b></div></div>
     <div class="go">タップでもう一度</div></section>
 </div>
 
-<div id="tc"><div id="stk"><i id="nub"></i></div><b id="bfire" data-b="fire">射撃</b><b id="bjump" data-b="jump">跳</b><b id="brel" data-b="reload">装填</b><b id="bpause" data-b="pause">II</b></div>
+<div id="tc"><div id="stk"><i id="nub"></i></div><b id="bfire" data-b="fire">射撃</b><b id="bjump" data-b="jump">跳</b><b id="brel" data-b="reload">装填</b><b id="bpause" data-b="pause">II</b><b id="bauto" data-b="auto">自動</b></div>
 <div id="rot"><div><small>ROTATE</small>スマホを横向きにしてください</div></div>
 <div id="gate"><div><small>MOBILE ONLY</small>これはスマホ専用版です。<br>PCでは、PC版(キーボードとマウス)を開いてください。</div></div>
 <div id="err"></div>
@@ -963,7 +968,7 @@ function updatePlayer(dt){aimAssist(dt);
   if(P.ground&&mv>1){P.bob+=mv*dt*1.9;P.stepT+=mv*dt;if(P.stepT>2.3){P.stepT=0;SFX.step(run);}}
   P.cool-=dt;
   if(P.reload>0){P.reload-=dt;if(P.reload<=0){P.ammo=MAG;P.reload=0;}}
-  else if(mouse.down&&P.cool<=0){if(P.ammo>0)shoot();else{SFX.empty();P.cool=.25;startReload();}}
+  else if((mouse.down||autoDown)&&P.cool<=0){if(P.ammo>0)shoot();else{SFX.empty();P.cool=.25;if(AUTOR)startReload();}}
   P.spread=max(0,P.spread-dt*2.6);P.recoil*=exp(-dt*13);P.kick*=exp(-dt*7);P.hurt=max(0,P.hurt-dt*1.6);
   P.swx*=exp(-dt*9);P.swy*=exp(-dt*9);
   for(const m of G.meds)if(m.on&&P.hp<100&&hypot(m.p[0]-P.p[0],m.p[2]-P.p[2])<1.1&&abs(P.p[1])<1.2){m.on=false;P.hp=min(100,P.hp+35);SFX.pickup();msg('体力 +35',1.6);}
@@ -1017,7 +1022,7 @@ function updateDrones(dt,passive){
 function updateBolts(dt){
   for(let i=G.bolts.length-1;i>=0;i--){const b=G.bolts[i];b.life-=dt;let dead=b.life<=0;
     for(let s=0;s<3&&!dead;s++){b.p=add(b.p,scl(b.v,dt/3));
-      if(G.state==='play'){const py=clamp(b.p[1],P.p[1]+.25,P.p[1]+1.6);if(hypot(b.p[0]-P.p[0],b.p[1]-py,b.p[2]-P.p[2])<.42){hurtPlayer(10,b.from);sparks(b.p,8,[4,1.2,.4],3);dead=true;break;}}
+      if(G.state==='play'){const py=clamp(b.p[1],P.p[1]+.25,P.p[1]+1.6);if(hypot(b.p[0]-P.p[0],b.p[1]-py,b.p[2]-P.p[2])<.42){hurtPlayer(7,b.from);sparks(b.p,8,[4,1.2,.4],3);dead=true;break;}}
       if(inWorld(b.p)){sparks(b.p,9,[4,1.4,.4],3.5,scl(norm(b.v),-1));setFlash(b.p,[1,.3,.1],6,14);SFX.impact(b.p);dead=true;}}
     if(dead)G.bolts.splice(i,1);}
 }
@@ -1220,7 +1225,7 @@ addEventListener('blur',()=>{for(const k in K)K[k]=false;mouse.down=false;});
 /* ============ touch (スマホ版) ============ */
 const TS={x:0,y:0,run:false};
 const stk=$('stk'),nub=$('nub');
-let stickId=null,lookId=null,fireId=null,jumpId=null,sx=0,sy=0,lx=0,ly=0,fx0=0,fy0=0,tapOK=false;
+let stickId=null,lookId=null,fireId=null,jumpId=null,sx=0,sy=0,lx=0,ly=0,fx0=0,fy0=0,tapOK=false,tapEl=null;
 const SENS=.0052;
 const portrait=()=>innerHeight>innerWidth;
 function look(dx,dy){P.yaw-=dx*SENS;P.pitch=clamp(P.pitch-dy*SENS,-1.5,1.5);P.swx=clamp(P.swx-dx*.00012,-.02,.02);P.swy=clamp(P.swy-dy*.00012,-.02,.02);}
@@ -1232,21 +1237,35 @@ function tapState(){
   if(G.state==='pause'){initAudio();G.state='play';overlay(null);return;}
   if((G.state==='dead'||G.state==='clear')&&G.endT>1.0)startGame(true);
 }
-/* 照準の補助: 指で狙うのは難しいので、照準の近く(約11度以内)にドローンがいれば少し引き寄せる */
+/* 難しさの対策(2026-11-23): 「狙う・動く・撃つ」の3つ同時を減らす。
+   自動射撃(AUTO): 見えているドローンが照準の近く(約19度以内)にいれば照準を引き寄せ、合ったら自動で撃つ。指は「動く」と「だいたい向く」だけでよい。
+   AUTO を切ると、従来どおり(射撃ボタン+弱い補助)。設定は端末内(localStorage)に残す。 */
+let AUTO=true,AUTOR=true,autoDown=false;try{AUTO=localStorage.getItem('rd_auto')!=='0';AUTOR=localStorage.getItem('rd_autor')!=='0';}catch(e){}
+/* 設定の表示をそろえる(タイトルと一時停止の両方にある切替、HUDの「自動」ボタン) */
+function syncOpt(){document.querySelectorAll('[data-o=fire]').forEach(e=>{e.textContent='自動で撃つ '+(AUTO?'オン':'オフ');e.classList.toggle('on',AUTO);});document.querySelectorAll('[data-o=reload]').forEach(e=>{e.textContent='自動リロード '+(AUTOR?'オン':'オフ');e.classList.toggle('on',AUTOR);});$('bauto').classList.toggle('on',AUTO);}
+function setAutoR(v){AUTOR=v;try{localStorage.setItem('rd_autor',v?'1':'0');}catch(e){}syncOpt();}
+function setAuto(v){AUTO=v;try{localStorage.setItem('rd_auto',v?'1':'0');}catch(e){}syncOpt();if(G.state==='play')msg(v?'自動射撃 オン':'自動射撃 オフ',1.4);}
+let rgHp=100,rgT=0,rgAcc=0;
 function aimAssist(dt){
-  if(!mouse.down&&lookId===null)return;const e=eyePos();let best=null,bd=.2;
+  autoDown=false;if(G.state!=='play')return;
+  /* 体力の自然回復: 4秒間 被弾がなければ、毎秒10ずつ戻る(スマホ版だけ) */
+  if(P.hp<rgHp){rgT=4;rgAcc=0;}else if(P.hp<100){rgT-=dt;if(rgT<=0){rgAcc+=10*dt;while(rgAcc>=1&&P.hp<100){P.hp++;rgAcc--;}}}rgHp=P.hp;
+  if(!AUTO&&!AUTOR&&!mouse.down&&lookId===null)return;const e=eyePos();let best=null,bd=AUTO?.34:.2;
   for(const d of G.drones){if(d.state!=='combat'&&d.state!=='idle')continue;const v=norm(sub(d.p,e));
-    let dy=atan2(-v[0],-v[2])-P.yaw;dy=atan2(sin(dy),cos(dy));const dp=Math.asin(v[1])-(P.pitch+P.kick);const a=hypot(dy,dp);if(a<bd){bd=a;best=[dy,dp];}}
-  if(best){const k=min(1,dt*(mouse.down?5:1.6));P.yaw+=best[0]*k;P.pitch=clamp(P.pitch+best[1]*k,-1.5,1.5);}
+    let dy=atan2(-v[0],-v[2])-P.yaw;dy=atan2(sin(dy),cos(dy));const dp=Math.asin(v[1])-(P.pitch+P.kick);const a=hypot(dy,dp);if(a<bd&&los(e,d.p)){bd=a;best=[dy,dp];}}
+  if(best){if(AUTO||mouse.down||lookId!==null){const k=min(1,dt*(AUTO?6:(mouse.down?5:1.6)));P.yaw+=best[0]*k;P.pitch=clamp(P.pitch+best[1]*k,-1.5,1.5);}
+    if(AUTO&&bd<.09&&P.reload<=0)autoDown=true;}
+  else if(AUTOR&&P.ammo<MAG/2&&P.reload<=0)startReload();
 }
 addEventListener('touchstart',e=>{e.preventDefault();
-  if(G.state!=='play'){tapOK=true;return;}
+  if(G.state!=='play'){tapOK=true;const t0=e.changedTouches[0].target;tapEl=t0&&t0.closest?t0.closest('[data-o]'):null;return;}
   tapOK=false;
   for(const t of e.changedTouches){const b=t.target.closest?t.target.closest('[data-b]'):null,k=b?b.dataset.b:'';
     if(k==='fire'){fireId=t.identifier;fx0=t.clientX;fy0=t.clientY;mouse.down=true;b.classList.add('on');}
     else if(k==='jump'){jumpId=t.identifier;K.Space=true;}
     else if(k==='reload'){startReload();}
     else if(k==='pause'){pauseGame();return;}
+    else if(k==='auto'){setAuto(!AUTO);}
     else if(t.clientX<innerWidth*.45&&stickId===null){stickId=t.identifier;sx=t.clientX;sy=t.clientY;stk.style.display='block';stk.style.left=sx+'px';stk.style.top=sy+'px';nub.style.transform='translate(0px,0px)';}
     else if(lookId===null){lookId=t.identifier;lx=t.clientX;ly=t.clientY;}
   }
@@ -1266,7 +1285,7 @@ const tend=e=>{e.preventDefault();
     if(id===lookId)lookId=null;
     if(id===fireId){fireId=null;mouse.down=false;$('bfire').classList.remove('on');}
     if(id===jumpId){jumpId=null;K.Space=false;}}
-  if(e.type==='touchend'&&tapOK&&G.state!=='play'){tapOK=false;tapState();}
+  if(e.type==='touchend'&&tapOK&&G.state!=='play'){tapOK=false;if(tapEl){if(tapEl.dataset.o==='fire')setAuto(!AUTO);else setAutoR(!AUTOR);tapEl=null;}else tapState();}
 };
 addEventListener('touchend',tend,{passive:false});addEventListener('touchcancel',tend,{passive:false});
 addEventListener('gesturestart',e=>e.preventDefault());addEventListener('dblclick',e=>e.preventDefault());
@@ -1274,7 +1293,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseGame()
 addEventListener('resize',()=>{if(portrait())pauseGame();});
 /* スマホ専用: タッチのない端末では案内だけ出す(テスト時は ?force=1) */
 if(!(navigator.maxTouchPoints>0)&&!Q.has('force')&&!Q.get('shot')){$('gate').style.display='flex';addEventListener('mousedown',e=>e.stopImmediatePropagation(),true);addEventListener('keydown',e=>e.stopImmediatePropagation(),true);}
-window.TCH={TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
+syncOpt();
+window.TCH={get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
 
 reset();resize();
 /* debug / test hooks (自動テストとスクリーンショット用。通常プレイでは使わない) */
