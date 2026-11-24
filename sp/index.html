@@ -110,6 +110,42 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
 #rot,#gate{position:fixed;inset:0;z-index:9;background:#05070a;display:none;align-items:center;justify-content:center;text-align:center;font-size:17px;line-height:2;letter-spacing:.08em;padding:24px}
 #rot small,#gate small{display:block;color:#d9a441;font-size:12px;letter-spacing:.4em}
 @media (orientation:portrait){#rot{display:flex}}
+
+/* ---- ホーム・設定 ---- */
+.hv{display:none}
+.s-title[data-v=main] .hv[data-v=main],.s-title[data-v=settings] .hv[data-v=settings],.s-title[data-v=gear] .hv[data-v=gear]{display:block}
+.menu{margin:4px 0 12px;width:min(48vw,400px)}
+.menu b{display:flex;align-items:baseline;gap:14px;padding:10px 0 10px 12px;border-bottom:1px solid rgba(234,223,200,.16);border-left:2px solid transparent;font-size:16px;font-weight:500;letter-spacing:.18em}
+.menu b i{font:11px ui-monospace,Menlo,monospace;font-style:normal;color:#d9a441;letter-spacing:.1em}
+.menu b small{margin-left:auto;font-size:10px;font-weight:400;letter-spacing:.06em;opacity:.55}
+.menu b.pri{font-size:25px;font-weight:300;letter-spacing:.32em;padding:9px 0 12px 12px;border-left-color:#d9a441}
+.menu b.off{color:rgba(234,223,200,.5)}
+.rec{font-size:11px;letter-spacing:.14em;color:rgba(234,223,200,.6)}.rec span{font-family:ui-monospace,Menlo,monospace;color:#eadfc8}
+.sh{font-size:19px;font-weight:400;letter-spacing:.34em;margin:0 0 4px}
+.opt{flex-wrap:wrap}
+.hv table{margin-top:12px;margin-bottom:6px}
+.bk{display:inline-block;padding:10px 16px 10px 0;font-size:12px;font-weight:600;letter-spacing:.14em;color:#d9a441}
+/* ---- 起動演出: 題字 → シャッターが上下に開いて、うしろの倉庫が見える ---- */
+#boot{position:fixed;inset:0;z-index:8;overflow:hidden}
+#boot .p{position:absolute;left:0;right:0;height:50.5%;background:#05070a}
+#boot .pt{top:0;border-bottom:2px solid #d9a441}
+#boot .pb{bottom:0}
+#boot .pb:before{content:"";position:absolute;left:0;right:0;top:0;height:7px;background:repeating-linear-gradient(-45deg,#d9a441 0 12px,#14110a 12px 24px)}
+#boot .rn{position:absolute;inset:-40px 0;z-index:1;opacity:0;background:repeating-linear-gradient(98deg,transparent 0 53px,rgba(150,180,210,.09) 53px 54px,transparent 54px 131px,rgba(150,180,210,.06) 131px 132px)}
+#boot .l{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#boot .l h1,#boot .l .en{opacity:0}#boot .l .en{margin:0}
+#boot .ln{display:block;width:min(46vw,360px);height:1px;margin:12px 0 14px;background:#d9a441;transform:scaleX(0)}
+#boot.go .rn{animation:brn .45s linear infinite,bf .4s ease forwards,bo .3s ease 1.45s forwards}
+#boot.go .l{animation:bo .28s ease 1.5s forwards}
+#boot.go .l h1{animation:bt .9s cubic-bezier(.2,.7,.2,1) .2s forwards}
+#boot.go .ln{animation:bln .6s cubic-bezier(.6,0,.2,1) .1s forwards}
+#boot.go .l .en{animation:bf .5s ease .8s forwards}
+#boot.go .pt{animation:bu .72s cubic-bezier(.7,0,.2,1) 1.72s forwards}
+#boot.go .pb{animation:bd .72s cubic-bezier(.7,0,.2,1) 1.72s forwards}
+@keyframes bt{from{opacity:0;letter-spacing:.6em;filter:blur(6px)}to{opacity:1;letter-spacing:.14em;filter:blur(0)}}
+@keyframes bln{to{transform:scaleX(1)}}@keyframes bf{to{opacity:1}}@keyframes bo{to{opacity:0}}
+@keyframes bu{to{transform:translateY(-103%)}}@keyframes bd{to{transform:translateY(103%)}}
+@keyframes brn{to{transform:translate(-6px,40px)}}
 </style>
 </head>
 <body>
@@ -125,29 +161,45 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
   <div id="am"><small>弾</small><b class="mono" id="amn">24</b><span class="mono">/ 24</span><em id="amh"></em></div>
 </div>
 <div id="ov" data-s="title">
-  <section class="s-title">
-    <h1>雨の倉庫</h1>
-    <div class="en">RAIN DEPOT</div>
-    <p class="lead">夕暮れ。雨漏りのする倉庫に、警備ドローンが3体。<br>全部壊して、北のシャッターから外へ出る。</p>
-    <table>
-      <tr><td>画面の左側をなぞる</td><td>移動(前へ大きく倒すと走る)</td></tr>
-      <tr><td>画面の右側をなぞる</td><td>視点</td></tr>
-      <tr><td>だいたい向ける</td><td>照準が寄って、自動で撃つ(右上「自動」で切替)</td></tr>
-      <tr><td>射撃 / 跳 / 装填 / II</td><td>手動で撃つ / ジャンプ / リロード / 一時停止</td></tr>
-    </table>
-    <div class="go">タップで開始</div>
-    <div class="opt"><small>設定(タップで切替)</small><b data-o="fire"></b><b data-o="reload"></b></div>
+  <section class="s-title" data-v="main">
+    <div class="hv" data-v="main">
+      <h1>雨の倉庫</h1>
+      <div class="en">RAIN DEPOT</div>
+      <div class="menu">
+        <b class="pri" data-o="battle"><i>01</i>バトル<small>ドローン3体を壊して脱出</small></b>
+        <b class="off" data-o="gear"><i>02</i>装備<small>準備中</small></b>
+        <b data-o="settings"><i>03</i>設定<small>自動で撃つ・視点の速さ・操作</small></b>
+      </div>
+      <div class="rec">最短 <span id="rbest">--</span> / 脱出 <span id="rclr">0</span> 回</div>
+    </div>
+    <div class="hv" data-v="settings">
+      <h2 class="sh">設定</h2>
+      <div class="opt"><b data-o="fire"></b><b data-o="reload"></b><b data-o="sens"></b></div>
+      <table>
+        <tr><td>画面の左側をなぞる</td><td>移動(前へ大きく倒すと走る)</td></tr>
+        <tr><td>画面の右側をなぞる</td><td>視点</td></tr>
+        <tr><td>だいたい向ける</td><td>照準が寄って、自動で撃つ(自動がオンのとき)</td></tr>
+        <tr><td>射撃 / 跳 / 装填 / II</td><td>手動で撃つ / ジャンプ / リロード / 一時停止</td></tr>
+      </table>
+      <b class="bk" data-o="back">← もどる</b>
+    </div>
+    <div class="hv" data-v="gear">
+      <h2 class="sh">装備</h2>
+      <p class="lead">準備中です。<br>バトルの報酬で銃や防具を強くする仕組みを、次の段階で足します。</p>
+      <b class="bk" data-o="back">← もどる</b>
+    </div>
   </section>
-  <section class="s-pause"><h2>一時停止</h2><div class="opt" style="justify-content:center;margin:4px 0 22px"><b data-o="fire"></b><b data-o="reload"></b></div><div class="go">タップで再開</div></section>
-  <section class="s-dead"><h2>倒れた</h2><div class="en" style="margin-left:0">SIGNAL LOST</div><div class="go">タップで再開</div></section>
+  <section class="s-pause"><h2>一時停止</h2><div class="opt" style="justify-content:center;margin:4px 0 22px"><b data-o="fire"></b><b data-o="reload"></b><b data-o="home">ホームへ</b></div><div class="go">タップで再開</div></section>
+  <section class="s-dead"><h2>倒れた</h2><div class="en" style="margin-left:0">SIGNAL LOST</div><div class="go">タップで再開</div><div class="opt" style="justify-content:center;margin-top:18px"><b data-o="home">ホームへ</b></div></section>
   <section class="s-clear"><h2>脱出</h2><div class="en" style="margin-left:0">YOU MADE IT OUT</div>
     <div class="stats"><div><small>時間</small><b class="mono" id="st1">-</b></div><div><small>命中率</small><b class="mono" id="st2">-</b></div><div><small>受けたダメージ</small><b class="mono" id="st3">-</b></div></div>
-    <div class="go">タップでもう一度</div></section>
+    <div class="go">タップでもう一度</div><div class="opt" style="justify-content:center;margin-top:18px"><b data-o="home">ホームへ</b></div></section>
 </div>
 
 <div id="tc"><div id="stk"><i id="nub"></i></div><b id="bfire" data-b="fire">射撃</b><b id="bjump" data-b="jump">跳</b><b id="brel" data-b="reload">装填</b><b id="bpause" data-b="pause">II</b><b id="bauto" data-b="auto">自動</b></div>
 <div id="rot"><div><small>ROTATE</small>スマホを横向きにしてください</div></div>
 <div id="gate"><div><small>MOBILE ONLY</small>これはスマホ専用版です。<br>PCでは、PC版(キーボードとマウス)を開いてください。</div></div>
+<div id="boot"><i class="rn"></i><div class="p pt"></div><div class="p pb"></div><div class="l"><h1>雨の倉庫</h1><i class="ln"></i><div class="en">RAIN DEPOT</div></div></div>
 <div id="err"></div>
 <script>
 (()=>{'use strict';
@@ -974,7 +1026,7 @@ function updatePlayer(dt){aimAssist(dt);
   P.spread=max(0,P.spread-dt*2.6);P.recoil*=exp(-dt*13);P.kick*=exp(-dt*7);P.hurt=max(0,P.hurt-dt*1.6);
   P.swx*=exp(-dt*9);P.swy*=exp(-dt*9);
   for(const m of G.meds)if(m.on&&P.hp<100&&hypot(m.p[0]-P.p[0],m.p[2]-P.p[2])<1.1&&abs(P.p[1])<1.2){m.on=false;P.hp=min(100,P.hp+35);SFX.pickup();msg('体力 +35',1.6);}
-  if(P.p[2]<-23.1&&G.exit>.5){G.state='clear';G.endT=0;$('st1').textContent=G.time.toFixed(1)+' 秒';$('st2').textContent=(G.shots?Math.round(G.hits/G.shots*100):0)+' %';$('st3').textContent=String(Math.round(G.dmg));overlay('clear');SFX.clear();mouse.down=false;}
+  if(P.p[2]<-23.1&&G.exit>.5){G.state='clear';G.endT=0;$('st1').textContent=G.time.toFixed(1)+' 秒';$('st2').textContent=(G.shots?Math.round(G.hits/G.shots*100):0)+' %';$('st3').textContent=String(Math.round(G.dmg));overlay('clear');SFX.clear();onClear();mouse.down=false;}
 }
 function startReload(){if(P.reload>0||P.ammo>=MAG||G.state!=='play')return;P.reload=1.45;SFX.reload();}
 function updateDrones(dt,passive){
@@ -1209,7 +1261,7 @@ function lock(){if(G.noLock)return;try{const r=canvas.requestPointerLock();if(r&
 function startGame(noLock){G.noLock=!!noLock;initAudio();reset();G.state='play';overlay(null);lock();SFX.ui();msg('ドローンを3体 破壊する',2.6);}
 addEventListener('mousedown',e=>{
   if(e.button!==0)return;
-  if(G.state==='title'){startGame(true);return;}
+  if(G.state==='title'){const o=(typeof e!=='undefined'&&e&&e.target&&e.target.closest)?e.target.closest('[data-o]'):null;if(o)act(o.dataset.o);return;}
   if(G.state==='pause'){initAudio();G.state='play';overlay(null);lock();return;}
   if(G.state==='dead'||G.state==='clear'){if(G.endT>1.0){startGame(G.noLock);}return;}
   if(G.state==='play'){if(!G.noLock&&document.pointerLockElement!==canvas){lock();return;}mouse.down=true;}
@@ -1228,14 +1280,14 @@ addEventListener('blur',()=>{for(const k in K)K[k]=false;mouse.down=false;});
 const TS={x:0,y:0,run:false};
 const stk=$('stk'),nub=$('nub');
 let stickId=null,lookId=null,fireId=null,jumpId=null,sx=0,sy=0,lx=0,ly=0,fx0=0,fy0=0,tapOK=false,tapEl=null;
-const SENS=.0052;
+let SENS=.0052;
 const portrait=()=>innerHeight>innerWidth;
 function look(dx,dy){P.yaw-=dx*SENS;P.pitch=clamp(P.pitch-dy*SENS,-1.5,1.5);P.swx=clamp(P.swx-dx*.00012,-.02,.02);P.swy=clamp(P.swy-dy*.00012,-.02,.02);}
 function relAll(){stickId=lookId=fireId=jumpId=null;TS.x=TS.y=0;TS.run=false;mouse.down=false;K.Space=false;stk.style.display='none';$('bfire').classList.remove('on');}
 function pauseGame(){if(G.state!=='play')return;G.state='pause';overlay('pause');relAll();}
 function tapState(){
   if(portrait())return;relAll();
-  if(G.state==='title'){startGame(true);return;}
+  if(G.state==='title'){const o=(typeof e!=='undefined'&&e&&e.target&&e.target.closest)?e.target.closest('[data-o]'):null;if(o)act(o.dataset.o);return;}
   if(G.state==='pause'){initAudio();G.state='play';overlay(null);return;}
   if((G.state==='dead'||G.state==='clear')&&G.endT>1.0)startGame(true);
 }
@@ -1287,7 +1339,7 @@ const tend=e=>{e.preventDefault();
     if(id===lookId)lookId=null;
     if(id===fireId){fireId=null;mouse.down=false;$('bfire').classList.remove('on');}
     if(id===jumpId){jumpId=null;K.Space=false;}}
-  if(e.type==='touchend'&&tapOK&&G.state!=='play'){tapOK=false;if(tapEl){if(tapEl.dataset.o==='fire')setAuto(!AUTO);else setAutoR(!AUTOR);tapEl=null;}else tapState();}
+  if(e.type==='touchend'&&tapOK&&G.state!=='play'){tapOK=false;if($('boot')){endBoot();tapEl=null;}else if(tapEl){act(tapEl.dataset.o);tapEl=null;}else tapState();}
 };
 addEventListener('touchend',tend,{passive:false});addEventListener('touchcancel',tend,{passive:false});
 addEventListener('gesturestart',e=>e.preventDefault());addEventListener('dblclick',e=>e.preventDefault());
@@ -1295,8 +1347,27 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseGame()
 addEventListener('resize',()=>{if(portrait())pauseGame();});
 /* スマホ専用: タッチのない端末では案内だけ出す(テスト時は ?force=1) */
 if(!(navigator.maxTouchPoints>0)&&!Q.has('force')&&!Q.get('shot')){$('gate').style.display='flex';addEventListener('mousedown',e=>e.stopImmediatePropagation(),true);addEventListener('keydown',e=>e.stopImmediatePropagation(),true);}
-syncOpt();
-window.TCH={get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
+/* ============ ホーム・設定・起動演出(段階②) ============ */
+const SENSV=[.0038,.0052,.0068],SENSN=['ゆっくり','ふつう','はやい'];let sensI=1;
+try{const v=localStorage.getItem('rd_sens');if(v==='0'||v==='1'||v==='2')sensI=+v;}catch(e){}SENS=SENSV[sensI];
+let REC={best:0,clr:0};try{REC=Object.assign(REC,JSON.parse(localStorage.getItem('rd_rec')||'{}'));}catch(e){}
+function syncHome(){document.querySelectorAll('[data-o=sens]').forEach(e=>{e.textContent='視点の速さ '+SENSN[sensI];});$('rbest').textContent=REC.best?REC.best.toFixed(1)+' 秒':'--';$('rclr').textContent=String(REC.clr||0);}
+function view(v){document.querySelector('.s-title').dataset.v=v;}
+function onClear(){REC.clr=(REC.clr||0)+1;if(!REC.best||G.time<REC.best)REC.best=+G.time.toFixed(1);try{localStorage.setItem('rd_rec',JSON.stringify(REC));}catch(e){}syncHome();}
+function goHome(){relAll();reset();G.state='title';view('main');overlay('title');}
+function act(o){
+  if(o==='battle'||o==='retry'){if(portrait())return;relAll();startGame(true);return;}
+  if(o==='fire')setAuto(!AUTO);else if(o==='reload')setAutoR(!AUTOR);
+  else if(o==='sens'){sensI=(sensI+1)%3;SENS=SENSV[sensI];try{localStorage.setItem('rd_sens',String(sensI));}catch(e){}syncHome();}
+  else if(o==='gear'||o==='settings')view(o);else if(o==='back')view('main');else if(o==='home')goHome();
+  initAudio();SFX.ui();
+}
+/* 起動演出: 中身(倉庫の絵)が1枚描けてから始める。タップで飛ばせる。動きを減らす設定のときは出さない */
+function endBoot(){const b=$('boot');if(b)b.remove();}
+if(Q.get('shot')||Q.has('noboot')||matchMedia('(prefers-reduced-motion:reduce)').matches)endBoot();
+else{let bs=false;const goBoot=()=>{if(bs)return;bs=true;const b=$('boot');if(b){b.classList.add('go');setTimeout(endBoot,2500);}};requestAnimationFrame(()=>requestAnimationFrame(goBoot));setTimeout(goBoot,700);}
+syncOpt();syncHome();
+window.TCH={act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
 
 reset();resize();
 /* debug / test hooks (自動テストとスクリーンショット用。通常プレイでは使わない) */
