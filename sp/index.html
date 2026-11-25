@@ -146,6 +146,19 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
 @keyframes bln{to{transform:scaleX(1)}}@keyframes bf{to{opacity:1}}@keyframes bo{to{opacity:0}}
 @keyframes bu{to{transform:translateY(-103%)}}@keyframes bd{to{transform:translateY(103%)}}
 @keyframes brn{to{transform:translate(-6px,40px)}}
+
+/* ---- 装備 ---- */
+.cr{font:13px ui-monospace,Menlo,monospace;color:#d9a441;letter-spacing:.08em;margin-left:16px}
+.shop{width:min(64vw,540px);margin-top:2px}
+.shop b{display:flex;align-items:baseline;gap:12px;padding:8px 0 8px 10px;border-bottom:1px solid rgba(234,223,200,.16);border-left:2px solid transparent;font-weight:400}
+.shop b.ok{border-left-color:#d9a441}
+.shop .nm{font-size:15px;font-weight:600;letter-spacing:.14em;width:9em;white-space:nowrap}
+.shop .nm em{font-style:normal;font-size:9px;letter-spacing:.2em;color:#d9a441;margin-left:8px}
+.shop .ds{flex:1;font-size:11px;color:rgba(234,223,200,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop .co{font:12px ui-monospace,Menlo,monospace;color:#d9a441;white-space:nowrap}
+.shop b.ng .co{color:rgba(234,223,200,.45)}.shop b.mx .co{color:rgba(234,223,200,.6)}
+.sn{font-size:10.5px;letter-spacing:.06em;color:rgba(234,223,200,.6);margin-top:8px;min-height:15px}
+.rw{font-size:13px;letter-spacing:.1em;color:#d9a441;margin:0 0 16px}
 </style>
 </head>
 <body>
@@ -158,7 +171,7 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
   <div id="dmg"><i></i></div>
   <div id="msg"></div>
   <div id="hp"><small>体力</small><b class="mono" id="hpn">100</b><div id="hpbar"><i id="hpb"></i></div></div>
-  <div id="am"><small>弾</small><b class="mono" id="amn">24</b><span class="mono">/ 24</span><em id="amh"></em></div>
+  <div id="am"><small>弾</small><b class="mono" id="amn">24</b><span class="mono" id="amx">/ 24</span><em id="amh"></em></div>
 </div>
 <div id="ov" data-s="title">
   <section class="s-title" data-v="main">
@@ -167,7 +180,7 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
       <div class="en">RAIN DEPOT</div>
       <div class="menu">
         <b class="pri" data-o="battle"><i>01</i>バトル<small>ドローン3体を壊して脱出</small></b>
-        <b class="off" data-o="gear"><i>02</i>装備<small>準備中</small></b>
+        <b data-o="gear"><i>02</i>装備<small id="gcr"></small></b>
         <b data-o="settings"><i>03</i>設定<small>自動で撃つ・視点の速さ・操作</small></b>
       </div>
       <div class="rec">最短 <span id="rbest">--</span> / 脱出 <span id="rclr">0</span> 回</div>
@@ -184,16 +197,17 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
       <b class="bk" data-o="back">← もどる</b>
     </div>
     <div class="hv" data-v="gear">
-      <h2 class="sh">装備</h2>
-      <p class="lead">準備中です。<br>バトルの報酬で銃や防具を強くする仕組みを、次の段階で足します。</p>
+      <h2 class="sh">装備<span class="cr" id="crn"></span></h2>
+      <div class="shop" id="shop"></div>
+      <div class="sn" id="shopn">バトルの報酬(CR)で強化します。CRはこのゲームの中だけの点数で、お金では買えません。</div>
       <b class="bk" data-o="back">← もどる</b>
     </div>
   </section>
   <section class="s-pause"><h2>一時停止</h2><div class="opt" style="justify-content:center;margin:4px 0 22px"><b data-o="fire"></b><b data-o="reload"></b><b data-o="home">ホームへ</b></div><div class="go">タップで再開</div></section>
-  <section class="s-dead"><h2>倒れた</h2><div class="en" style="margin-left:0">SIGNAL LOST</div><div class="go">タップで再開</div><div class="opt" style="justify-content:center;margin-top:18px"><b data-o="home">ホームへ</b></div></section>
+  <section class="s-dead"><h2>倒れた</h2><div class="en" style="margin-left:0">SIGNAL LOST</div><div class="rw" id="rwd"></div><div class="go">タップで再開</div><div class="opt" style="justify-content:center;margin-top:18px"><b data-o="home">ホームへ</b></div></section>
   <section class="s-clear"><h2>脱出</h2><div class="en" style="margin-left:0">YOU MADE IT OUT</div>
     <div class="stats"><div><small>時間</small><b class="mono" id="st1">-</b></div><div><small>命中率</small><b class="mono" id="st2">-</b></div><div><small>受けたダメージ</small><b class="mono" id="st3">-</b></div></div>
-    <div class="go">タップでもう一度</div><div class="opt" style="justify-content:center;margin-top:18px"><b data-o="home">ホームへ</b></div></section>
+    <div class="rw" id="rwc"></div><div class="go">タップでもう一度</div><div class="opt" style="justify-content:center;margin-top:18px"><b data-o="home">ホームへ</b></div></section>
 </div>
 
 <div id="tc"><div id="stk"><i id="nub"></i></div><b id="bfire" data-b="fire">射撃</b><b id="bjump" data-b="jump">跳</b><b id="brel" data-b="reload">装填</b><b id="bpause" data-b="pause">II</b><b id="bauto" data-b="auto">自動</b></div>
@@ -909,7 +923,7 @@ const K={},mouse={down:false};
 const P={p:[0,0,20.5],v:[0,0,0],yaw:0,pitch:0,kick:0,hp:100,ammo:24,reload:0,cool:0,ground:true,bob:0,recoil:0,shake:0,spread:0,hurt:0,swx:0,swy:0,stepT:0,eyeH:1.62,roll:0,deadT:0,dmgAng:0,dmgT:0};
 const G={state:'title',t:0,time:0,drones:[],bolts:[],parts:[],tracers:[],kills:0,shots:0,hits:0,dmg:0,exit:0,exitOpening:false,exitDelay:-1,ts:1,slowT:0,
   lightning:0,nextL:9,l2:-1,thunderT:-1,flash:{p:[0,0,0],c:[0,0,0],i:0,k:20},mf:0,meds:[],noLock:false,freeze:false,endT:0,hm:0,hmKill:false,msgT:0};
-const MAG=24;
+let MAG=24;
 function reset(){
   Object.assign(P,{p:[0,0,20.5],v:[0,0,0],yaw:0,pitch:0,kick:0,hp:100,ammo:MAG,reload:0,cool:.2,ground:true,bob:0,recoil:0,shake:0,spread:0,hurt:0,swx:0,swy:0,stepT:0,eyeH:1.62,roll:0,deadT:0,dmgT:0});
   G.drones.forEach(d=>stopHum(d.hum,true));
@@ -978,7 +992,7 @@ function shoot(){
   for(const dr of G.drones){if(dr.state==='dead'||dr.state==='wreck')continue;const ts=raySphere(o,d,dr.p,.52);if(ts<t){t=ts;hd=dr;}}
   const hp=add(o,scl(d,t));
   G.tracers.push({a:muzzleW.slice(),b:hp,life:.07});
-  if(hd)hurtDrone(hd,20,d,hp);
+  blast(o,d,w.t,hd);if(hd)hurtDrone(hd,GDMG,d,hp);
   else if(w.n){sparks(hp,7,[3,2,.8],3,w.n);puff(add(hp,scl(w.n,.05)),1,.18,.05);SFX.impact(hp);}
   P.recoil=1;P.kick+=.011+rnd()*.005;P.yaw+=(rnd()-.5)*.007;P.spread=min(1,P.spread+.2);P.shake=max(P.shake,.25);
   G.mf=.05;setFlash(add(o,scl(f,.9)),[1,.65,.3],9,26);SFX.shot();
@@ -1001,7 +1015,7 @@ function killDrone(d){
 }
 function hurtPlayer(dmg,from){
   if(G.state!=='play')return;P.hp-=dmg;G.dmg+=dmg;P.hurt=1;P.shake=max(P.shake,.9);P.dmgT=1;P.dmgDir=norm([from[0]-P.p[0],0,from[2]-P.p[2]]);SFX.hurt();
-  if(P.hp<=0){P.hp=0;G.state='dead';G.endT=0;P.deadT=0;overlay('dead');SFX.death();mouse.down=false;}
+  if(P.hp<=0){P.hp=0;G.state='dead';G.endT=0;P.deadT=0;overlay('dead');SFX.death();onDead();mouse.down=false;}
 }
 function fireBolt(d){
   const fw=[sin(d.yaw),0,cos(d.yaw)];const o=add(d.p,[fw[0]*.42,-.2,fw[2]*.42]);
@@ -1076,7 +1090,7 @@ function updateDrones(dt,passive){
 function updateBolts(dt){
   for(let i=G.bolts.length-1;i>=0;i--){const b=G.bolts[i];b.life-=dt;let dead=b.life<=0;
     for(let s=0;s<3&&!dead;s++){b.p=add(b.p,scl(b.v,dt/3));
-      if(G.state==='play'){const py=clamp(b.p[1],P.p[1]+.25,P.p[1]+1.6);if(hypot(b.p[0]-P.p[0],b.p[1]-py,b.p[2]-P.p[2])<.42){hurtPlayer(7,b.from);sparks(b.p,8,[4,1.2,.4],3);dead=true;break;}}
+      if(G.state==='play'){const py=clamp(b.p[1],P.p[1]+.25,P.p[1]+1.6);if(hypot(b.p[0]-P.p[0],b.p[1]-py,b.p[2]-P.p[2])<.42){hurtPlayer(Math.max(1,Math.round(7*ARM)),b.from);sparks(b.p,8,[4,1.2,.4],3);dead=true;break;}}
       if(inWorld(b.p)){sparks(b.p,9,[4,1.4,.4],3.5,scl(norm(b.v),-1));setFlash(b.p,[1,.3,.1],6,14);SFX.impact(b.p);dead=true;}}
     if(dead)G.bolts.splice(i,1);}
 }
@@ -1261,7 +1275,7 @@ function lock(){if(G.noLock)return;try{const r=canvas.requestPointerLock();if(r&
 function startGame(noLock){G.noLock=!!noLock;initAudio();reset();G.state='play';overlay(null);lock();SFX.ui();msg('ドローンを3体 破壊する',2.6);}
 addEventListener('mousedown',e=>{
   if(e.button!==0)return;
-  if(G.state==='title'){const o=(typeof e!=='undefined'&&e&&e.target&&e.target.closest)?e.target.closest('[data-o]'):null;if(o)act(o.dataset.o);return;}
+  if(G.state==='title'){const o=(typeof e!=='undefined'&&e&&e.target&&e.target.closest)?e.target.closest('[data-o]'):null;if(o)act(o.dataset.o,o);return;}
   if(G.state==='pause'){initAudio();G.state='play';overlay(null);lock();return;}
   if(G.state==='dead'||G.state==='clear'){if(G.endT>1.0){startGame(G.noLock);}return;}
   if(G.state==='play'){if(!G.noLock&&document.pointerLockElement!==canvas){lock();return;}mouse.down=true;}
@@ -1287,7 +1301,7 @@ function relAll(){stickId=lookId=fireId=jumpId=null;TS.x=TS.y=0;TS.run=false;mou
 function pauseGame(){if(G.state!=='play')return;G.state='pause';overlay('pause');relAll();}
 function tapState(){
   if(portrait())return;relAll();
-  if(G.state==='title'){const o=(typeof e!=='undefined'&&e&&e.target&&e.target.closest)?e.target.closest('[data-o]'):null;if(o)act(o.dataset.o);return;}
+  if(G.state==='title'){const o=(typeof e!=='undefined'&&e&&e.target&&e.target.closest)?e.target.closest('[data-o]'):null;if(o)act(o.dataset.o,o);return;}
   if(G.state==='pause'){initAudio();G.state='play';overlay(null);return;}
   if((G.state==='dead'||G.state==='clear')&&G.endT>1.0)startGame(true);
 }
@@ -1339,7 +1353,7 @@ const tend=e=>{e.preventDefault();
     if(id===lookId)lookId=null;
     if(id===fireId){fireId=null;mouse.down=false;$('bfire').classList.remove('on');}
     if(id===jumpId){jumpId=null;K.Space=false;}}
-  if(e.type==='touchend'&&tapOK&&G.state!=='play'){tapOK=false;if($('boot')){endBoot();tapEl=null;}else if(tapEl){act(tapEl.dataset.o);tapEl=null;}else tapState();}
+  if(e.type==='touchend'&&tapOK&&G.state!=='play'){tapOK=false;if($('boot')){endBoot();tapEl=null;}else if(tapEl){act(tapEl.dataset.o,tapEl);tapEl=null;}else tapState();}
 };
 addEventListener('touchend',tend,{passive:false});addEventListener('touchcancel',tend,{passive:false});
 addEventListener('gesturestart',e=>e.preventDefault());addEventListener('dblclick',e=>e.preventDefault());
@@ -1353,9 +1367,10 @@ try{const v=localStorage.getItem('rd_sens');if(v==='0'||v==='1'||v==='2')sensI=+
 let REC={best:0,clr:0};try{REC=Object.assign(REC,JSON.parse(localStorage.getItem('rd_rec')||'{}'));}catch(e){}
 function syncHome(){document.querySelectorAll('[data-o=sens]').forEach(e=>{e.textContent='視点の速さ '+SENSN[sensI];});$('rbest').textContent=REC.best?REC.best.toFixed(1)+' 秒':'--';$('rclr').textContent=String(REC.clr||0);}
 function view(v){document.querySelector('.s-title').dataset.v=v;}
-function onClear(){REC.clr=(REC.clr||0)+1;if(!REC.best||G.time<REC.best)REC.best=+G.time.toFixed(1);try{localStorage.setItem('rd_rec',JSON.stringify(REC));}catch(e){}syncHome();}
+function onClear(){reward(true);REC.clr=(REC.clr||0)+1;if(!REC.best||G.time<REC.best)REC.best=+G.time.toFixed(1);try{localStorage.setItem('rd_rec',JSON.stringify(REC));}catch(e){}syncHome();}
 function goHome(){relAll();reset();G.state='title';view('main');overlay('title');}
-function act(o){
+function act(o,el){
+  if(o==='buy'){buy(el.dataset.k);return;}
   if(o==='battle'||o==='retry'){if(portrait())return;relAll();startGame(true);return;}
   if(o==='fire')setAuto(!AUTO);else if(o==='reload')setAutoR(!AUTOR);
   else if(o==='sens'){sensI=(sensI+1)%3;SENS=SENSV[sensI];try{localStorage.setItem('rd_sens',String(sensI));}catch(e){}syncHome();}
@@ -1366,8 +1381,38 @@ function act(o){
 function endBoot(){const b=$('boot');if(b)b.remove();}
 if(Q.get('shot')||Q.has('noboot')||matchMedia('(prefers-reduced-motion:reduce)').matches)endBoot();
 else{let bs=false;const goBoot=()=>{if(bs)return;bs=true;const b=$('boot');if(b){b.classList.add('go');setTimeout(endBoot,2500);}};requestAnimationFrame(()=>requestAnimationFrame(goBoot));setTimeout(goBoot,700);}
-syncOpt();syncHome();
-window.TCH={act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
+/* ============ 装備(段階③)。通貨はゲーム内の点数(CR)だけ。お金は扱わない。データは端末内 ============ */
+const ITEMS=[
+  {k:'dmg',n:'威力',d:'1発のダメージ',v:[20,24,28,32],c:[120,220,360],f:x=>String(x)},
+  {k:'mag',n:'弾倉',d:'1回に撃てる弾数',v:[24,30,36,42],c:[80,160,260],f:x=>x+'発'},
+  {k:'blast',n:'炸裂弾',d:'かすめた弾も半分のダメージ・届く幅',v:[0,.6,.9,1.2],c:[150,260,400],f:x=>x?x+'m':'なし'},
+  {k:'armor',n:'防具',d:'受けるダメージ',v:[1,.85,.7,.55],c:[100,200,320],f:x=>Math.round(x*100)+'%'}];
+const SAVE={cr:0,lv:{}};
+try{const j=JSON.parse(localStorage.getItem('rd_save')||'{}');if(j&&typeof j.cr==='number'&&isFinite(j.cr))SAVE.cr=max(0,floor(j.cr));if(j&&j.lv)for(const it of ITEMS)SAVE.lv[it.k]=clamp(j.lv[it.k]|0,0,3);}catch(e){}
+for(const it of ITEMS)if(!SAVE.lv[it.k])SAVE.lv[it.k]=0;
+let GDMG=20,BLR=0,ARM=1;
+const gval=k=>ITEMS.find(i=>i.k===k).v[SAVE.lv[k]];
+function applyGear(){GDMG=gval('dmg');MAG=gval('mag');BLR=gval('blast');ARM=gval('armor');$('amx').textContent='/ '+MAG;if(G.state!=='play')P.ammo=MAG;}
+function saveGear(){try{localStorage.setItem('rd_save',JSON.stringify(SAVE));}catch(e){}}
+function renderShop(note){
+  $('crn').textContent=SAVE.cr+' CR';$('gcr').textContent='所持 '+SAVE.cr+' CR';
+  $('shop').innerHTML=ITEMS.map(it=>{const l=SAVE.lv[it.k],mx=l>=3,c=mx?0:it.c[l];
+    return '<b data-o="buy" data-k="'+it.k+'" class="'+(mx?'mx':SAVE.cr>=c?'ok':'ng')+'"><span class="nm">'+it.n+'<em>'+'■'.repeat(l)+'□'.repeat(3-l)+'</em></span><span class="ds">'+it.d+' '+it.f(it.v[l])+(mx?'':' → '+it.f(it.v[l+1]))+'</span><span class="co">'+(mx?'最大':c+' CR')+'</span></b>';}).join('');
+  if(note)$('shopn').textContent=note;
+}
+function buy(k){const it=ITEMS.find(i=>i.k===k);if(!it)return;const l=SAVE.lv[k];initAudio();
+  if(l>=3){renderShop(it.n+' は最大です。');return;}
+  const c=it.c[l];if(SAVE.cr<c){renderShop('CRが '+(c-SAVE.cr)+' 足りません。バトルで集められます。');SFX.empty();return;}
+  SAVE.cr-=c;SAVE.lv[k]=l+1;saveGear();applyGear();renderShop(it.n+' を強化しました('+it.f(it.v[l+1])+')。');SFX.pickup();}
+function reward(clear){let r=G.kills*10;const parts=['撃破 '+G.kills*10];
+  if(clear){r+=100;parts.push('脱出 100');if(G.time<30){r+=50;parts.push('速さ 50');}else if(G.time<45){r+=25;parts.push('速さ 25');}if(G.dmg<30){r+=30;parts.push('被弾少 30');}}
+  SAVE.cr+=r;saveGear();renderShop();$(clear?'rwc':'rwd').textContent='報酬 +'+r+' CR('+parts.join('・')+')';}
+function onDead(){reward(false);}
+/* 炸裂弾: 弾の通り道がドローンの近く(届く幅の内側)を通れば、当たっていなくても半分のダメージ */
+function blast(o,d,tw,hd){if(!BLR)return;for(const dr of G.drones){if(dr===hd||dr.state==='dead'||dr.state==='wreck')continue;const tt=dot(sub(dr.p,o),d);if(tt<=0||tt>tw)continue;
+  if(len(sub(dr.p,add(o,scl(d,tt))))<.52+BLR){hurtDrone(dr,Math.round(GDMG*.5),d,dr.p);G.hits--;puff(dr.p,1,.25,.08);}}}
+syncOpt();syncHome();applyGear();renderShop();
+window.TCH={get SAVE(){return SAVE;},get gear(){return {GDMG,MAG,BLR,ARM};},buy,grant:n=>{SAVE.cr+=n;saveGear();renderShop();},act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
 
 reset();resize();
 /* debug / test hooks (自動テストとスクリーンショット用。通常プレイでは使わない) */
