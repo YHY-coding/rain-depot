@@ -167,6 +167,16 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
 #rlb{position:absolute;left:50%;top:calc(50% + 26px);width:64px;height:3px;margin-left:-32px;background:rgba(0,0,0,.5);opacity:0;transition:opacity .12s}
 #rlb.on{opacity:1}
 #rlb i{display:block;height:100%;width:0;background:#ffb04a}
+#dn b{position:absolute;left:0;top:0;font-weight:700;font-size:15px;line-height:1;color:#fff;text-shadow:0 1px 4px #000,0 0 2px #000;opacity:0;transform:translate(-50%,-50%);font-variant-numeric:tabular-nums}
+#dn b.k{color:#ff9a5c;font-size:19px}
+#dn b.go{animation:dnf .62s ease-out forwards}
+@keyframes dnf{0%{opacity:1;transform:translate(-50%,-50%) scale(1.55)}16%{opacity:1;transform:translate(-50%,-70%) scale(1)}100%{opacity:0;transform:translate(-50%,-230%) scale(1)}}
+#eb{position:absolute;left:50%;top:calc(50% - 46px);width:92px;height:4px;margin-left:-46px;background:rgba(0,0,0,.55);opacity:0;transition:opacity .25s}
+#eb i{display:block;height:100%;width:100%;background:#ff6a3c;transition:width .12s}
+#kf{position:absolute;left:calc(50% + 34px);top:calc(50% + 14px);font-size:13px;font-weight:700;letter-spacing:.1em;color:#ff9a5c;text-shadow:0 1px 5px #000;opacity:0;white-space:nowrap}
+#kf.go{animation:kff 1.5s ease-out forwards}
+@keyframes kff{0%{opacity:0;transform:translateX(-10px)}10%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+#xh.on i{background:#ff6a3c}
 </style>
 </head>
 <body>
@@ -176,6 +186,7 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
   <div id="tm" class="mono">00:00.0</div>
   <div id="rlb"><i></i></div><div id="xh"><i class="t"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="d"></i></div>
   <div id="hm"><i></i><i></i></div>
+  <div id="eb"><i></i></div><div id="kf"></div><div id="dn"><b></b><b></b><b></b><b></b><b></b><b></b></div>
   <div id="dmg"><i></i></div>
   <div id="msg"></div>
   <div id="hp"><small>体力</small><b class="mono" id="hpn">100</b><div id="hpbar"><i id="hpb"></i></div></div>
@@ -912,6 +923,10 @@ function burst(dur,vol,ftype,f0,f1,dst,delay=0,q=.7){const C=A.ctx,t=AT()+delay,
   const f=C.createBiquadFilter();f.type=ftype;f.Q.value=q;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(max(20,f1),t+dur);
   const g=C.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(dst);s.start(t,Math.random()*1.5);s.stop(t+dur+.03);}
 const SFX={
+  shotX(){if(!A.ctx)return;const b=bus(null,.4,.5),k=.92+rnd()*.16;tone('triangle',2400*k,700,.02,.22,b);burst(.3,.16,'bandpass',700*k,220,b,.03,.8);tone('sine',88*k,36,.2,.5,b);},
+  casing(){if(!A.ctx)return;const b=bus(null,.2,.35),d=.4+rnd()*.12;tone('triangle',5200+rnd()*900,4200,.035,.07,b,d);tone('triangle',6100,5000,.03,.04,b,d+.1);},
+  lowTick(n){if(!A.ctx)return;const b=bus(null,0,.5);tone('square',1500+(6-n)*130,900,.022,.16,b);},
+  killX(){if(!A.ctx)return;const b=bus(null,.15,.6);tone('sine',660,650,.09,.28,b);tone('sine',990,980,.16,.28,b,.075);burst(.12,.4,'lowpass',500,90,b);},
   shot(){if(!A.ctx)return;const b=bus(null,.5,.8);burst(.13,.9,'highpass',1100,400,b);burst(.24,.8,'lowpass',2800,180,b);tone('sine',175,42,.17,1.0,b);tone('square',1000,140,.035,.22,b);},
   empty(){if(!A.ctx)return;const b=bus(null,.1,.5);tone('square',1400,600,.03,.3,b);burst(.03,.3,'highpass',3000,2000,b);},
   rl(k){if(!A.ctx)return;const b=bus(null,.18,.7);
@@ -963,7 +978,7 @@ function reset(){
   G.drones.forEach(d=>stopHum(d.hum,true));
   const homes=[[-5,3.0,8.8],[4.5,3.2,-3],[-2.5,3.2,-16.5]];
   G.drones=homes.map((h,i)=>({i,p:h.slice(),v:[0,0,0],home:h,hp:140,state:'idle',t:i*2.3,yaw:PI*(i?1:0),tilt:0,roll:0,fire:1.4+i*.3,charging:false,charge:0,flash:0,rot:0,ang:0,dir:i%2?1:-1,noLos:0,stuck:0,alertT:-1,rx:0,rz:0,sx:0,sz:0,smoke:0,wt:0,hum:makeHum(i,h)}));
-  G.bolts=[];G.parts=[];G.mags=[];G.tracers=[];G.kills=0;G.shots=0;G.hits=0;G.dmg=0;G.time=0;G.exit=0;G.exitOpening=false;G.exitDelay=-1;G.ts=1;G.slowT=0;G.mf=0;G.endT=0;
+  G.bolts=[];G.parts=[];G.mags=[];G.heat=0;G.ebT=0;G.lastKill=undefined;G.tracers=[];G.kills=0;G.shots=0;G.hits=0;G.dmg=0;G.time=0;G.exit=0;G.exitOpening=false;G.exitDelay=-1;G.ts=1;G.slowT=0;G.mf=0;G.endT=0;
   G.meds=[{p:[-12.2,.5,4.2],on:true},{p:[8.6,.5,-12.2],on:true}];
   shutterCol.off=false;mouse.down=false;
   $('objt').textContent='ドローンを3体 破壊する';[...$('pips').children].forEach(e=>e.className='');
@@ -1007,7 +1022,8 @@ function updHud(dt){
   setT('amh',P.reload>0?'リロード中…':P.ammo===0?'R でリロード':P.ammo<=6?'残りわずか':'');
   const s=G.time,mm=floor(s/60),ss=(s%60);setT('tm',String(mm).padStart(2,'0')+':'+ss.toFixed(1).padStart(4,'0'));
   $('xh').style.setProperty('--g',(5+P.spread*14+min(1,hypot(P.v[0],P.v[2])/6)*5)+'px');
-  G.hm=max(0,G.hm-dt*4);const hm=$('hm');hm.style.opacity=min(1,G.hm*1.5);hm.style.transform=`scale(${1+G.hm*.4})`;hm.classList.toggle('kill',G.hmKill);
+  fxHud(dt);
+  G.hm=max(0,G.hm-dt*4);const hm=$('hm');hm.style.opacity=min(1,G.hm*1.5);hm.style.transform=`scale(${1+G.hm*(G.hmKill?.95:.4)})`;hm.classList.toggle('kill',G.hmKill);
   P.dmgT=max(0,P.dmgT-dt*1.2);const dm=$('dmg');dm.style.opacity=min(1,P.dmgT*1.4);
   if(P.dmgT>0){const fx=-sin(P.yaw),fz=-cos(P.yaw);const a=atan2(P.dmgDir[0],-P.dmgDir[2])-atan2(fx,-fz);dm.style.transform=`rotate(${a}rad)`;}
   if(G.msgT>0){G.msgT-=dt;if(G.msgT<=0)$('msg').style.opacity=0;}
@@ -1059,6 +1075,25 @@ function drawMags(){for(const m of G.mags)draw(magMesh,mulN(T(m.p[0],m.p[1],m.p[
 const RLE=[[.14,()=>{SFX.rl('out');dropMag();P.swy+=.008;}],[.58,()=>{SFX.rl('in');P.ammo=MAG;P.swy-=.022;}],[.77,()=>{SFX.rl('rackB');}],[.87,()=>{SFX.rl('rackF');P.swx+=.012;P.recoil+=.22;}]];
 function rlEvents(){const u=1-P.reload/RLT;while(P.rlI<RLE.length&&u>=RLE[P.rlI][0]){RLE[P.rlI][1]();P.rlI++;}}
 let magM=IDENT,boltM=IDENT,handM=IDENT;
+/* ============ 手応え(段階⑥) ============
+   撃つ: 銃が毎回すこし違う向きに跳ねる/薬きょうが飛ぶ/音に機械音と低い響きを重ねる/残り6発から合図の音。
+   当たる: 当たった所に数字/照準の上に相手の体力/照準が相手に重なると色が変わる。倒す: 「撃破 +10」と音。 */
+const DN=[...document.querySelectorAll('#dn b')];let dnI=0,fxN=0;
+function vib(p){try{if(navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive))navigator.vibrate(p);}catch(e){}}
+function fxShot(f,r,u){P.rkr=(rnd()-.5)*.1;P.rky=(rnd()-.5)*.035;G.heat=min(1,(G.heat||0)+.13);
+  const e=eyePos(),p=[e[0]+f[0]*.5+r[0]*.24-u[0]*.13,e[1]+f[1]*.5-u[1]*.13,e[2]+f[2]*.5+r[2]*.24-u[2]*.13];
+  part(p,[P.v[0]+r[0]*(1.8+rnd())+f[0]*.4,1.6+rnd()*1.1,P.v[2]+r[2]*(1.8+rnd())+f[2]*.4],.5,.011,[1.5,1.0,.3],13,1,.4);
+  SFX.shotX();if(G.shots%2===0)SFX.casing();if(P.ammo>0&&P.ammo<=6)SFX.lowTick(P.ammo);
+  if(G.heat>.7&&muzzleW[1]>.1&&rnd()<.5)puff(muzzleW,1,.1,.05);}
+function dmgNum(hp,v,kill){if(!VP)return;const w=VP[3]*hp[0]+VP[7]*hp[1]+VP[11]*hp[2]+VP[15];if(w<=.01)return;
+  const x=(VP[0]*hp[0]+VP[4]*hp[1]+VP[8]*hp[2]+VP[12])/w,y=(VP[1]*hp[0]+VP[5]*hp[1]+VP[9]*hp[2]+VP[13])/w;if(abs(x)>1.1||abs(y)>1.1)return;
+  const e=DN[dnI=(dnI+1)%DN.length];e.textContent=v;e.style.left=((x*.5+.5)*innerWidth+(rnd()-.5)*30)+'px';e.style.top=((.5-y*.5)*innerHeight-12)+'px';e.className='';void e.offsetWidth;e.className=(kill?'k ':'')+'go';}
+function fxHit(d,dmg,hp){const kill=d.hp-dmg<=0;dmgNum(hp,Math.round(dmg),kill);G.ebT=1.8;G.ebV=max(0,d.hp-dmg)/d.hp0;vib(kill?[18,30,28]:8);}
+function fxKill(){const st=G.lastKill!==undefined&&G.time-G.lastKill<4;G.lastKill=G.time;const e=$('kf');e.textContent=(st?'連続撃破':'撃破')+' +10';e.className='';void e.offsetWidth;e.className='go';SFX.killX();}
+function fxHud(dt){G.heat=max(0,(G.heat||0)-dt*.55);G.ebT=max(0,(G.ebT||0)-dt);const eb=$('eb'),eo=G.state==='play'&&G.ebT>0?1:0,ew=Math.round((G.ebV||0)*100);if(eb._o!==eo){eb._o=eo;eb.style.opacity=eo;}if(eb._w!==ew){eb._w=ew;eb.firstChild.style.width=ew+'%';}
+  if((fxN=(fxN+1)%4)!==0)return;let on=false;if(G.state==='play'){const e=shoulder(),pt=P.pitch+P.kick;for(const d of G.drones){if(d.state!=='combat'&&d.state!=='idle')continue;const v=sub(d.p,e),l=len(v);
+    let dy=atan2(-v[0],-v[2])-P.yaw;dy=atan2(sin(dy),cos(dy));if(hypot(dy,Math.asin(v[1]/l)-pt)<min(.2,.55/l)&&los(e,d.p)){on=true;break;}}}
+  const xh=$('xh');if(xh._on!==on){xh._on=on;xh.classList.toggle('on',on);}}
 function camBasis(){const y=P.yaw,p=P.pitch+P.kick;const f=[-sin(y)*cos(p),sin(p),-cos(y)*cos(p)],r=[cos(y),0,-sin(y)];return {f,r,u:cross(r,f)};}
 function eyePos(){return [P.p[0],P.p[1]+P.eyeH,P.p[2]];}
 let muzzleW=[0,0,0];
@@ -1075,19 +1110,19 @@ function shoot(){
   blast(o,d,w.t,hd);if(hd)hurtDrone(hd,GDMG,d,hp);
   else if(w.n){sparks(hp,7,[3,2,.8],3,w.n);puff(add(hp,scl(w.n,.05)),1,.18,.05);SFX.impact(hp);}
   P.recoil=1;P.kick+=.011+rnd()*.005;P.yaw+=(rnd()-.5)*.007;P.spread=min(1,P.spread+.2);P.shake=max(P.shake,.25);
-  G.mf=.05;setFlash(add(o,scl(f,.9)),[1,.65,.3],9,26);SFX.shot();
+  G.mf=.05;setFlash(add(o,scl(f,.9)),[1,.65,.3],9,26);SFX.shot();fxShot(f,r,u);
 }
 function alertDrone(d,quiet){if(d.state!=='idle')return;d.state='combat';d.ang=atan2(d.p[2]-P.p[2],d.p[0]-P.p[0]);d.fire=.75+rnd()*.4;
   if(!quiet){SFX.alert(d.p);msg('検知された',1.4);}
   for(const o of G.drones)if(o!==d&&o.state==='idle'&&len(sub(o.p,d.p))<11)o.alertT=.9;}
 function hurtDrone(d,dmg,dir,hp){
-  d.hp-=dmg;d.flash=1;{const j=(rnd()<.5?-1:1)*2.6;d.v=add(d.v,[dir[0]*1.4+cos(d.yaw)*j,(rnd()-.4)*1.5,dir[2]*1.4-sin(d.yaw)*j]);}G.hits++;alertDrone(d,true);
+  if(d.hp0===undefined)d.hp0=d.hp;d.hp-=dmg;d.flash=1;fxHit(d,dmg,hp);{const j=(rnd()<.5?-1:1)*2.6;d.v=add(d.v,[dir[0]*1.4+cos(d.yaw)*j,(rnd()-.4)*1.5,dir[2]*1.4-sin(d.yaw)*j]);}G.hits++;alertDrone(d,true);
   sparks(hp,10,[4,2.4,.8],4,scl(dir,-1));SFX.hit(hp);
   if(d.hp<=0){killDrone(d);G.hm=1;G.hmKill=true;SFX.mark(true);}else{G.hm=1;G.hmKill=false;SFX.mark(false);if(d.hp<=50)puff(d.p,2,.3,.08);}
 }
 function killDrone(d){
   d.state='dead';d.v=add(d.v,[(rnd()-.5)*2,2.5,(rnd()-.5)*2]);d.sx=(rnd()-.5)*9;d.sz=(rnd()-.5)*9;d.charging=false;d.charge=0;
-  stopHum(d.hum);d.hum=null;G.kills++;
+  stopHum(d.hum);d.hum=null;G.kills++;fxKill();
   sparks(d.p,46,[5,2.6,.7],8);for(let i=0;i<8;i++)part(d.p,[(rnd()-.5)*3,rnd()*2.5,(rnd()-.5)*3],.35+rnd()*.3,.5+rnd()*.5,[3.5,1.5,.4],-1,0,2);
   puff(d.p,8,.8,.09);setFlash(d.p,[1,.55,.2],60,5);SFX.explode(d.p);P.shake=max(P.shake,clamp(1.6-len(sub(d.p,P.p))*.08,.2,1.2));
   [...$('pips').children].forEach((e,i)=>e.className=i<G.kills?'k':'');
@@ -1231,7 +1266,7 @@ function setupCamera(){
   let eye,yaw,pitch,roll=0,fov=68;
   if(G.state==='title'){const t=G.t;eye=[1.4+sin(t*.11)*1.3,1.58+sin(t*.23)*.04,20.3];yaw=sin(t*.07)*.22+.06;pitch=.05;}
   else{const mv=hypot(P.v[0],P.v[2]);const bob=P.ground?min(1,mv/4.3):0;const s=P.shake;
-    eye=[P.p[0],P.p[1]+P.eyeH+sin(P.bob*2)*.022*bob,P.p[2]];yaw=P.yaw+(rnd()-.5)*s*.012;pitch=P.pitch+P.kick+(rnd()-.5)*s*.012;roll=P.roll+sin(P.bob)*.004*bob+(rnd()-.5)*s*.008;
+    eye=[P.p[0],P.p[1]+P.eyeH+sin(P.bob*2)*.022*bob,P.p[2]];yaw=P.yaw+(rnd()-.5)*s*.012;pitch=P.pitch+P.kick+(rnd()-.5)*s*.012;roll=P.roll+sin(P.bob)*.004*bob+(rnd()-.5)*s*.008+(P.rkr||0)*P.recoil*.1;
     fov=68+clamp((mv-4.3)/2.1,0,1)*4+P.recoil*.6;}
   const tp=TPV&&G.state!=='title';if(tp){eye=tpCam(yaw,pitch);roll=0;}
   CAM=mulN(T(eye[0],eye[1],eye[2]),RY(yaw),RX(pitch),RZ(roll));camEye=eye;
@@ -1239,7 +1274,7 @@ function setupCamera(){
   camR=[CAM[0],CAM[1],CAM[2]];camU=[CAM[4],CAM[5],CAM[6]];camF=[-CAM[8],-CAM[9],-CAM[10]];camP=eye;
   const mv=hypot(P.v[0],P.v[2]),bob=P.ground?min(1,mv/4.3):0;
   rlCalc();
-  gunM=mulN(CAM,T(.2+sin(P.bob)*.007*bob+P.swx-RL.roll*.03,-.2+abs(cos(P.bob))*.008*bob-P.swy+RL.up*.035-(P.ground?0:clamp(P.v[1]*.004,-.03,.03)),-.62+P.recoil*.05+RL.roll*.05),RX(P.recoil*.075+RL.up*.2),RY(P.swx*-2.5+.02+RL.roll*.16),RZ(-RL.roll*.52+P.swx*2));
+  gunM=mulN(CAM,T(.2+sin(P.bob)*.007*bob+P.swx-RL.roll*.03,-.2+abs(cos(P.bob))*.008*bob-P.swy+RL.up*.035-(P.ground?0:clamp(P.v[1]*.004,-.03,.03)),-.62+P.recoil*.078+RL.roll*.05),RX(P.recoil*.11+RL.up*.2),RY(P.swx*-2.5+.02+RL.roll*.16+(P.rky||0)*P.recoil),RZ(-RL.roll*.52+P.swx*2+(P.rkr||0)*P.recoil));
   magM=mulN(gunM,T(0,-RL.magY*.5,0));boltM=mulN(gunM,T(0,0,RL.bolt*.07));handM=mulN(gunM,T(RL.hx,RL.hy,RL.hz));
   muzzleW=xf(gunM,[0,.02,-.7]);
   if(tp){poseBody();if(tpD>=.7)muzzleW=xf(PM.gun,[0,.02,-.7]);}
@@ -1499,7 +1534,7 @@ function onDead(){reward(false);}
 function blast(o,d,tw,hd){if(!BLR)return;for(const dr of G.drones){if(dr===hd||dr.state==='dead'||dr.state==='wreck')continue;const tt=dot(sub(dr.p,o),d);if(tt<=0||tt>tw)continue;
   if(len(sub(dr.p,add(o,scl(d,tt))))<.52+BLR){hurtDrone(dr,Math.round(GDMG*.5),d,dr.p);G.hits--;puff(dr.p,1,.25,.08);}}}
 syncOpt();syncHome();applyGear();renderShop();
-window.TCH={RLT,RL,rlCalc,get mags(){return G.mags;},get TPV(){return TPV;},setView,get tpD(){return tpD;},shoulder,get SAVE(){return SAVE;},get gear(){return {GDMG,MAG,BLR,ARM};},buy,grant:n=>{SAVE.cr+=n;saveGear();renderShop();},act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
+window.TCH={dmgNum,fxKill,RLT,RL,rlCalc,get mags(){return G.mags;},get TPV(){return TPV;},setView,get tpD(){return tpD;},shoulder,get SAVE(){return SAVE;},get gear(){return {GDMG,MAG,BLR,ARM};},buy,grant:n=>{SAVE.cr+=n;saveGear();renderShop();},act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
 
 reset();resize();
 /* debug / test hooks (自動テストとスクリーンショット用。通常プレイでは使わない) */
