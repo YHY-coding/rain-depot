@@ -164,6 +164,9 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
 #bview{right:max(110px,calc(env(safe-area-inset-right) + 96px));top:10px;width:40px;height:40px;font-size:10px;letter-spacing:.04em;opacity:.55}
 #bview.on{opacity:1;border-color:#d9a441;color:#d9a441}
 #tm{right:max(164px,calc(env(safe-area-inset-right) + 150px))}
+#rlb{position:absolute;left:50%;top:calc(50% + 26px);width:64px;height:3px;margin-left:-32px;background:rgba(0,0,0,.5);opacity:0;transition:opacity .12s}
+#rlb.on{opacity:1}
+#rlb i{display:block;height:100%;width:0;background:#ffb04a}
 </style>
 </head>
 <body>
@@ -171,7 +174,7 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
 <div id="hud">
   <div id="obj"><small>目標</small><b id="objt">ドローンを3体 破壊する</b><div id="pips"><i></i><i></i><i></i></div></div>
   <div id="tm" class="mono">00:00.0</div>
-  <div id="xh"><i class="t"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="d"></i></div>
+  <div id="rlb"><i></i></div><div id="xh"><i class="t"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="d"></i></div>
   <div id="hm"><i></i><i></i></div>
   <div id="dmg"><i></i></div>
   <div id="msg"></div>
@@ -769,7 +772,7 @@ const rotorMesh=new MB().box(0,0,0,.42,.008,.04,4,[.25,.26,.28]).box(0,0,0,.04,.
 const gunMesh=(()=>{const m=new MB(),A=[.15,.16,.18],B=[.07,.075,.08];
   m.box(0,0,-.05,.066,.11,.42,4,A);m.box(0,.012,-.38,.052,.07,.3,13,B);m.cyl(0,.02,-.59,.017,.14,4,A,'z',10);m.cyl(0,.02,-.665,.024,.03,4,B,'z',10);
   m.box(0,.066,-.1,.03,.024,.34,4,B);m.box(0,.095,.04,.036,.04,.02,4,B);m.box(0,.09,-.5,.012,.045,.012,4,B);
-  m.box(0,-.12,.085,.05,.15,.07,13,B,0);m.box(0,-.13,-.07,.044,.17,.085,13,[.1,.1,.11]);m.box(0,-.012,.26,.05,.09,.22,13,B);m.box(0,-.03,.375,.056,.13,.02,13,[.04,.04,.04]);
+  m.box(0,-.12,.085,.05,.15,.07,13,B,0);m.box(0,-.012,.26,.05,.09,.22,13,B);m.box(0,-.03,.375,.056,.13,.02,13,[.04,.04,.04]);
   m.box(.034,0,-.2,.004,.028,.22,13,[.62,.24,.04]);m.box(-.034,0,-.2,.004,.028,.22,13,[.62,.24,.04]);
   m.box(.03,-.2,.2,.11,.1,.36,13,[.05,.055,.06],.15);m.box(0,-.115,.09,.07,.1,.085,13,[.045,.045,.05]);
   return m.upload();})();
@@ -783,9 +786,16 @@ const bodyMesh=(()=>{const m=new MB(),C=[.13,.155,.17],V=[.075,.085,.09],S=[.24,
 const legMesh=new MB().box(0,-.2,0,.16,.42,.19,13,[.1,.115,.13]).box(0,-.58,.01,.14,.36,.16,13,[.1,.115,.13]).box(0,-.8,-.035,.15,.12,.27,13,[.03,.03,.03]).box(0,-.42,-.09,.13,.1,.05,13,[.05,.055,.06]).upload();
 const armMesh=(()=>{const m=new MB(),C=[.13,.155,.17],H=[.03,.03,.03];
   m.box(.27,-.13,-.05,.1,.3,.12,13,C);m.box(.205,-.25,-.25,.09,.09,.36,13,C,.41);m.box(.14,-.25,-.41,.08,.09,.09,13,H);
+  return m.upload();})();
+const armLMesh=(()=>{const m=new MB(),C=[.13,.155,.17],H=[.03,.03,.03];
   m.box(-.27,-.12,-.1,.1,.28,.12,13,C);m.box(-.1,-.245,-.37,.09,.09,.58,13,C,-.66);m.box(.09,-.25,-.62,.08,.08,.09,13,H);
   return m.upload();})();
 const packLedMesh=new MB().box(0,1.3,.278,.1,.022,.008,5,WHITE).upload();
+const magMesh=new MB().box(0,-.13,-.07,.044,.17,.085,13,[.2,.21,.23]).box(.0235,-.12,-.07,.003,.1,.02,5,[.9,.5,.12]).box(-.0235,-.12,-.07,.003,.1,.02,5,[.9,.5,.12]).box(0,-.218,-.07,.05,.014,.092,13,[.62,.24,.04]).upload();
+const boltMesh=new MB().box(-.037,.046,.0,.012,.016,.06,13,[.42,.43,.45]).box(-.05,.046,.022,.02,.02,.02,13,[.42,.43,.45]).upload();
+const handMesh=(()=>{const m=new MB(),S=[.085,.1,.11],H=[.2,.19,.17];
+  m.box(-.012,0,0,.075,.075,.105,13,H);m.box(-.03,-.045,.02,.08,.02,.1,13,[.62,.24,.04]);m.box(-.05,-.09,.05,.085,.14,.1,13,S);m.box(-.09,-.2,.1,.088,.14,.1,13,S);m.box(-.13,-.31,.15,.09,.14,.1,13,S);m.box(-.17,-.42,.2,.092,.14,.1,13,S);
+  return m.upload();})();
 const medMesh=(()=>{const m=new MB();m.box(0,0,0,.42,.3,.26,13,[.75,.75,.72]);m.box(0,0,.132,.2,.06,.004,5,[.2,2.2,.8]);m.box(0,0,.132,.06,.2,.004,5,[.2,2.2,.8]);m.box(0,0,-.132,.2,.06,.004,5,[.2,2.2,.8]);m.box(0,0,-.132,.06,.2,.004,5,[.2,2.2,.8]);m.box(0,.16,0,.2,.03,.04,4,STEEL);return m.upload();})();
 
 /* ============ textures ============ */
@@ -904,6 +914,13 @@ function burst(dur,vol,ftype,f0,f1,dst,delay=0,q=.7){const C=A.ctx,t=AT()+delay,
 const SFX={
   shot(){if(!A.ctx)return;const b=bus(null,.5,.8);burst(.13,.9,'highpass',1100,400,b);burst(.24,.8,'lowpass',2800,180,b);tone('sine',175,42,.17,1.0,b);tone('square',1000,140,.035,.22,b);},
   empty(){if(!A.ctx)return;const b=bus(null,.1,.5);tone('square',1400,600,.03,.3,b);burst(.03,.3,'highpass',3000,2000,b);},
+  rl(k){if(!A.ctx)return;const b=bus(null,.18,.7);
+    if(k==='start'){burst(.11,.16,'lowpass',900,300,b);burst(.05,.12,'bandpass',2600,1800,b,.03,2);}
+    else if(k==='out'){tone('square',1100,520,.018,.28,b);burst(.07,.45,'bandpass',1700,650,b,.012,3);tone('sine',240,150,.05,.25,b,.02);}
+    else if(k==='in'){burst(.05,.3,'bandpass',900,2300,b,0,3);tone('sine',170,62,.085,.75,b,.045);tone('square',520,210,.03,.3,b,.045);burst(.035,.5,'highpass',2600,1500,b,.045);}
+    else if(k==='rackB'){burst(.075,.42,'bandpass',2900,1300,b,0,5);tone('square',640,360,.05,.16,b);}
+    else if(k==='rackF'){burst(.04,.7,'highpass',3200,1500,b);tone('triangle',980,300,.05,.4,b);tone('sine',230,95,.06,.5,b,.004);tone('square',1500,900,.012,.2,b,.05);}},
+  magDrop(pos){if(!A.ctx)return;const b=bus(pos,.25,.45);tone('triangle',2300,1500,.05,.3,b);tone('sine',3400,2600,.04,.18,b);burst(.04,.35,'bandpass',1400,600,b,0,2);tone('triangle',2000,1400,.04,.14,b,.11);},
   reload(){if(!A.ctx)return;const b=bus(null,.15,.6);burst(.05,.5,'bandpass',1800,900,b,0,3);tone('square',300,180,.04,.25,b,.02);burst(.05,.5,'bandpass',2400,1200,b,.75,3);tone('square',420,220,.05,.3,b,.78);burst(.04,.6,'highpass',2500,1500,b,1.15);tone('triangle',700,350,.05,.35,b,1.16);},
   hit(pos){if(!A.ctx)return;const b=bus(pos,.3,.7);tone('sine',1250,1100,.12,.4,b);tone('sine',1890,1700,.09,.3,b);burst(.05,.5,'highpass',2500,1500,b);},
   mark(k){if(!A.ctx)return;const b=bus(null,0,.5);tone('sine',k?880:2100,k?440:1700,k?.16:.045,.35,b);if(k)tone('sine',1320,660,.2,.25,b,.04);},
@@ -946,7 +963,7 @@ function reset(){
   G.drones.forEach(d=>stopHum(d.hum,true));
   const homes=[[-5,3.0,8.8],[4.5,3.2,-3],[-2.5,3.2,-16.5]];
   G.drones=homes.map((h,i)=>({i,p:h.slice(),v:[0,0,0],home:h,hp:140,state:'idle',t:i*2.3,yaw:PI*(i?1:0),tilt:0,roll:0,fire:1.4+i*.3,charging:false,charge:0,flash:0,rot:0,ang:0,dir:i%2?1:-1,noLos:0,stuck:0,alertT:-1,rx:0,rz:0,sx:0,sz:0,smoke:0,wt:0,hum:makeHum(i,h)}));
-  G.bolts=[];G.parts=[];G.tracers=[];G.kills=0;G.shots=0;G.hits=0;G.dmg=0;G.time=0;G.exit=0;G.exitOpening=false;G.exitDelay=-1;G.ts=1;G.slowT=0;G.mf=0;G.endT=0;
+  G.bolts=[];G.parts=[];G.mags=[];G.tracers=[];G.kills=0;G.shots=0;G.hits=0;G.dmg=0;G.time=0;G.exit=0;G.exitOpening=false;G.exitDelay=-1;G.ts=1;G.slowT=0;G.mf=0;G.endT=0;
   G.meds=[{p:[-12.2,.5,4.2],on:true},{p:[8.6,.5,-12.2],on:true}];
   shutterCol.off=false;mouse.down=false;
   $('objt').textContent='ドローンを3体 破壊する';[...$('pips').children].forEach(e=>e.className='');
@@ -986,7 +1003,8 @@ function msg(t,dur=2.4){const e=$('msg');e.textContent=t;e.style.opacity=1;G.msg
 function overlay(s){const o=$('ov');if(s){o.dataset.s=s;o.classList.remove('off');$('hud').classList.toggle('on',false);}else{o.classList.add('off');$('hud').classList.add('on');}}
 function updHud(dt){
   setT('hpn',String(max(0,Math.ceil(P.hp))));$('hpb').style.width=max(0,P.hp)+'%';$('hp').classList.toggle('low',P.hp<=30);
-  setT('amn',String(P.ammo).padStart(2,'0'));setT('amh',P.reload>0?'リロード中…':P.ammo===0?'R でリロード':P.ammo<=6?'残りわずか':'');
+  setT('amn',String(P.ammo).padStart(2,'0'));{const rb=$('rlb'),on=P.reload>0&&G.state==='play';if(rb._on!==on){rb._on=on;rb.classList.toggle('on',on);}if(on)rb.firstChild.style.width=((1-P.reload/RLT)*100|0)+'%';}
+  setT('amh',P.reload>0?'リロード中…':P.ammo===0?'R でリロード':P.ammo<=6?'残りわずか':'');
   const s=G.time,mm=floor(s/60),ss=(s%60);setT('tm',String(mm).padStart(2,'0')+':'+ss.toFixed(1).padStart(4,'0'));
   $('xh').style.setProperty('--g',(5+P.spread*14+min(1,hypot(P.v[0],P.v[2])/6)*5)+'px');
   G.hm=max(0,G.hm-dt*4);const hm=$('hm');hm.style.opacity=min(1,G.hm*1.5);hm.style.transform=`scale(${1+G.hm*.4})`;hm.classList.toggle('kill',G.hmKill);
@@ -1009,13 +1027,38 @@ function tpCam(yaw,pitch){const s=shoulder(),b=[sin(yaw)*cos(pitch),-sin(pitch),
 const PM={};
 function poseBody(){const mv=hypot(P.v[0],P.v[2]),bob=P.ground?min(1,mv/4.3):0;const e=G.state==='dead'?P.deadT*P.deadT*(3-2*P.deadT):0;
   const B=mulN(T(P.p[0],P.p[1]+abs(sin(P.bob))*.03*bob,P.p[2]),RY(P.yaw),RX(e*1.45));
-  const sw=sin(P.bob)*.62*bob,rl=P.reload>0?sin(clamp(1-P.reload/1.45,0,1)*PI):0;
+  const sw=sin(P.bob)*.62*bob;
   PM.body=B;PM.l1=mulN(B,T(.11,.86,0),RX(P.ground?sw:.3));PM.l2=mulN(B,T(-.11,.86,0),RX(P.ground?-sw:-.4));
-  PM.arm=mulN(B,T(0,1.36,0),RX(clamp(P.pitch+P.kick,-1.1,1.1)*.85+P.recoil*.05-rl*.45));
-  PM.gun=mulN(PM.arm,T(.13,-.17,-.42+P.recoil*.03),RZ(rl*.3));}
-function drawBody(){if(tpD<.7)return;const fl=P.hurt*.5;draw(bodyMesh,PM.body,WHITE,1,fl);draw(legMesh,PM.l1,WHITE,1,fl);draw(legMesh,PM.l2,WHITE,1,fl);draw(armMesh,PM.arm,WHITE,1,fl);draw(gunMesh,PM.gun);
+  PM.arm=mulN(B,T(0,1.36,0),RX(clamp(P.pitch+P.kick,-1.1,1.1)*.85+P.recoil*.05+RL.up*.1));
+  PM.gun=mulN(PM.arm,T(.13,-.17,-.42+P.recoil*.03),RX(RL.up*.42),RZ(-RL.roll*.7));
+  PM.armL=mulN(PM.arm,T(-.27,0,-.1),RX(-RL.arm*.75),T(.27,0,.1));PM.mag=mulN(PM.gun,T(0,-RL.magY*.5,0));PM.bolt=mulN(PM.gun,T(0,0,RL.bolt*.07));}
+function drawBody(){if(tpD<.7)return;const fl=P.hurt*.5;draw(bodyMesh,PM.body,WHITE,1,fl);draw(legMesh,PM.l1,WHITE,1,fl);draw(legMesh,PM.l2,WHITE,1,fl);draw(armMesh,PM.arm,WHITE,1,fl);draw(armLMesh,PM.armL,WHITE,1,fl);draw(gunMesh,PM.gun);draw(boltMesh,PM.bolt);if(RL.magOn)draw(magMesh,PM.mag);
   const a=P.ammo/MAG,c=P.reload>0?[1,.5,.1]:a>.25?[.3,.9,1]:[1,.15,.1],k=P.reload>0?2+sin(G.t*20):1.2+a*2.5;draw(gunLedMesh,PM.gun,c,k);draw(packLedMesh,PM.body,c,k);}
-function drawBodyD(){if(tpD<.7)return;drawD(bodyMesh,PM.body);drawD(legMesh,PM.l1);drawD(legMesh,PM.l2);drawD(armMesh,PM.arm);drawD(gunMesh,PM.gun);}
+function drawBodyD(){if(tpD<.7)return;drawD(bodyMesh,PM.body);drawD(legMesh,PM.l1);drawD(legMesh,PM.l2);drawD(armMesh,PM.arm);drawD(armLMesh,PM.armL);drawD(gunMesh,PM.gun);if(RL.magOn)drawD(magMesh,PM.mag);}
+/* ============ リロードの動き(段階⑤) ============
+   u = リロードの進み(0→1)。0.14 弾倉を抜く / 0.58 新しい弾倉を差す / 0.77 引く / 0.87 戻る。差してから引くまでに「間」を置く。
+   音は最初にまとめて予約せず、その瞬間に鳴らす(一時停止しても音と絵がずれない)。 */
+const RLT=1.45;
+function kf(u,k){if(u<=k[0][0])return k[0][1];for(let i=1;i<k.length;i++)if(u<=k[i][0]){const a=k[i-1],b=k[i];let t=(u-a[0])/(b[0]-a[0]);t=t*t*(3-2*t);return a[1]+(b[1]-a[1])*t;}return k[k.length-1][1];}
+const RK={roll:[[0,0],[.11,1],[.64,1],[.73,.4],[.9,.4],[1,0]],up:[[0,0],[.11,1],[.54,1],[.6,1.3],[.68,1],[.9,.55],[1,0]],
+  mag:[[.1,0],[.14,.15],[.36,1],[.5,.22],[.56,.1],[.58,0]],bolt:[[.77,0],[.84,1],[.86,1],[.875,0]],
+  hx:[[0,-.3],[.1,-.01],[.63,-.01],[.72,-.075],[.88,-.075],[1,-.3]],
+  hy:[[0,-.75],[.1,-.2],[.14,-.275],[.3,-.8],[.36,-.7],[.5,-.31],[.56,-.25],[.58,-.2],[.63,-.2],[.72,.05],[.88,.05],[1,-.75]],
+  hz:[[0,-.07],[.63,-.07],[.72,.02],[.77,.02],[.84,.1],[.87,.02],[.9,.02],[1,-.05]],
+  arm:[[0,0],[.1,.1],[.14,.2],[.3,1],[.36,1],[.56,.12],[.63,.1],[.72,-.12],[.88,-.12],[1,0]]};
+const RL={u:-1,roll:0,up:0,magOn:true,magY:0,bolt:0,hx:0,hy:0,hz:0,arm:0};
+function rlCalc(){const u=P.reload>0?clamp(1-P.reload/RLT,0,1):-1;RL.u=u;if(u<0){RL.roll=RL.up=RL.magY=RL.bolt=RL.arm=0;RL.magOn=true;return;}
+  RL.roll=kf(u,RK.roll);RL.up=kf(u,RK.up);RL.magOn=u<.14||u>=.36;RL.magY=kf(u,RK.mag);RL.bolt=kf(u,RK.bolt);RL.hx=kf(u,RK.hx);RL.hy=kf(u,RK.hy);RL.hz=kf(u,RK.hz);RL.arm=kf(u,RK.arm);}
+G.mags=[];
+function dropMag(){const y=P.yaw,f=[-sin(y),0,-cos(y)],r=[cos(y),0,-sin(y)];if(G.mags.length>5)G.mags.shift();
+  G.mags.push({p:[P.p[0]+f[0]*.45+r[0]*.16,P.p[1]+1.22,P.p[2]+f[2]*.45+r[2]*.16],v:[P.v[0]*.6-r[0]*.5+f[0]*.3,-.6,P.v[2]*.6-r[2]*.5+f[2]*.3],ry:y,rx:0,sp:5+rnd()*4,life:7,hit:false});}
+function updMags(dt){for(let i=G.mags.length-1;i>=0;i--){const m=G.mags[i];m.life-=dt;if(m.life<=0){G.mags.splice(i,1);continue;}if(m.sp===0)continue;
+  m.v[1]-=14*dt;m.p[0]+=m.v[0]*dt;m.p[1]+=m.v[1]*dt;m.p[2]+=m.v[2]*dt;m.rx+=m.sp*dt;
+  if(m.p[1]<.03){m.p[1]=.03;if(!m.hit){m.hit=true;SFX.magDrop(m.p);}if(m.v[1]<-1.4){m.v[1]*=-.28;m.v[0]*=.45;m.v[2]*=.45;m.sp*=.5;}else{m.v=[0,0,0];m.sp=0;m.rx=PI/2;}}}}
+function drawMags(){for(const m of G.mags)draw(magMesh,mulN(T(m.p[0],m.p[1],m.p[2]),RY(m.ry),RX(m.rx),T(0,.13,.07)));}
+const RLE=[[.14,()=>{SFX.rl('out');dropMag();P.swy+=.008;}],[.58,()=>{SFX.rl('in');P.ammo=MAG;P.swy-=.022;}],[.77,()=>{SFX.rl('rackB');}],[.87,()=>{SFX.rl('rackF');P.swx+=.012;P.recoil+=.22;}]];
+function rlEvents(){const u=1-P.reload/RLT;while(P.rlI<RLE.length&&u>=RLE[P.rlI][0]){RLE[P.rlI][1]();P.rlI++;}}
+let magM=IDENT,boltM=IDENT,handM=IDENT;
 function camBasis(){const y=P.yaw,p=P.pitch+P.kick;const f=[-sin(y)*cos(p),sin(p),-cos(y)*cos(p)],r=[cos(y),0,-sin(y)];return {f,r,u:cross(r,f)};}
 function eyePos(){return [P.p[0],P.p[1]+P.eyeH,P.p[2]];}
 let muzzleW=[0,0,0];
@@ -1072,14 +1115,14 @@ function updatePlayer(dt){aimAssist(dt);
   const mv=hypot(P.v[0],P.v[2]);
   if(P.ground&&mv>1){P.bob+=mv*dt*1.9;P.stepT+=mv*dt;if(P.stepT>2.3){P.stepT=0;SFX.step(run);}}
   P.cool-=dt;
-  if(P.reload>0){P.reload-=dt;if(P.reload<=0){P.ammo=MAG;P.reload=0;}}
+  if(P.reload>0){P.reload-=dt;rlEvents();if(P.reload<=0){P.ammo=MAG;P.reload=0;}}
   else if((mouse.down||autoDown)&&P.cool<=0){if(P.ammo>0)shoot();else{SFX.empty();P.cool=.25;if(AUTOR)startReload();}}
   P.spread=max(0,P.spread-dt*2.6);P.recoil*=exp(-dt*13);P.kick*=exp(-dt*7);P.hurt=max(0,P.hurt-dt*1.6);
   P.swx*=exp(-dt*9);P.swy*=exp(-dt*9);
   for(const m of G.meds)if(m.on&&P.hp<100&&hypot(m.p[0]-P.p[0],m.p[2]-P.p[2])<1.1&&abs(P.p[1])<1.2){m.on=false;P.hp=min(100,P.hp+35);SFX.pickup();msg('体力 +35',1.6);}
   if(P.p[2]<-23.1&&G.exit>.5){G.state='clear';G.endT=0;$('st1').textContent=G.time.toFixed(1)+' 秒';$('st2').textContent=(G.shots?Math.round(G.hits/G.shots*100):0)+' %';$('st3').textContent=String(Math.round(G.dmg));overlay('clear');SFX.clear();onClear();mouse.down=false;}
 }
-function startReload(){if(P.reload>0||P.ammo>=MAG||G.state!=='play')return;P.reload=1.45;SFX.reload();}
+function startReload(){if(P.reload>0||P.ammo>=MAG||G.state!=='play')return;P.reload=RLT;P.rlI=0;SFX.rl('start');}
 function updateDrones(dt,passive){
   const eye=[P.p[0],P.p[1]+1.45,P.p[2]];
   for(const d of G.drones){
@@ -1132,6 +1175,7 @@ function updateBolts(dt){
     if(dead)G.bolts.splice(i,1);}
 }
 function updateParts(dt){
+  updMags(dt);
   for(let i=G.parts.length-1;i>=0;i--){const p=G.parts[i];p.life-=dt;if(p.life<=0){G.parts.splice(i,1);continue;}
     p.v[1]-=p.grav*dt;if(p.drag){const k=exp(-p.drag*dt);p.v[0]*=k;p.v[1]*=k;p.v[2]*=k;}
     p.p[0]+=p.v[0]*dt;p.p[1]+=p.v[1]*dt;p.p[2]+=p.v[2]*dt;if(p.type===1&&p.p[1]<.02){p.p[1]=.02;p.v[1]=abs(p.v[1])*.35;p.v[0]*=.6;p.v[2]*=.6;}}
@@ -1194,8 +1238,9 @@ function setupCamera(){
   const V=inv(CAM);VP=mul(persp(fov*PI/180,RW/RH,.05,300),V);IVP=inv(VP);
   camR=[CAM[0],CAM[1],CAM[2]];camU=[CAM[4],CAM[5],CAM[6]];camF=[-CAM[8],-CAM[9],-CAM[10]];camP=eye;
   const mv=hypot(P.v[0],P.v[2]),bob=P.ground?min(1,mv/4.3):0;
-  const rl=P.reload>0?sin(clamp(1-P.reload/1.45,0,1)*PI):0;
-  gunM=mulN(CAM,T(.2+sin(P.bob)*.007*bob+P.swx,-.2+abs(cos(P.bob))*.008*bob-P.swy-rl*.16-(P.ground?0:clamp(P.v[1]*.004,-.03,.03)),-.62+P.recoil*.05),RX(P.recoil*.075-rl*.55),RY(P.swx*-2.5+.02),RZ(rl*.35+P.swx*2));
+  rlCalc();
+  gunM=mulN(CAM,T(.2+sin(P.bob)*.007*bob+P.swx-RL.roll*.03,-.2+abs(cos(P.bob))*.008*bob-P.swy+RL.up*.035-(P.ground?0:clamp(P.v[1]*.004,-.03,.03)),-.62+P.recoil*.05+RL.roll*.05),RX(P.recoil*.075+RL.up*.2),RY(P.swx*-2.5+.02+RL.roll*.16),RZ(-RL.roll*.52+P.swx*2));
+  magM=mulN(gunM,T(0,-RL.magY*.5,0));boltM=mulN(gunM,T(0,0,RL.bolt*.07));handM=mulN(gunM,T(RL.hx,RL.hy,RL.hz));
   muzzleW=xf(gunM,[0,.02,-.7]);
   if(tp){poseBody();if(tpD>=.7)muzzleW=xf(PM.gun,[0,.02,-.7]);}
 }
@@ -1211,6 +1256,7 @@ let REFLK=1,fcount=0;const OPT={vol:1,bloom:1,shadow:1};
 function drawScene(shM){
   draw(worldMesh,IDENT);
   if(TPV&&G.state!=='title')drawBody();
+  drawMags();
   draw(shutterMesh,shM);
   draw(decalMesh,IDENT);
   draw(bulbMesh,T(LAMPS[2][0],6.29,LAMPS[2][1]),WHITE,G.lampK2||1);
@@ -1261,7 +1307,7 @@ function render(){
   litUniforms(VP,camEye,false);
   drawScene(shM);
   gl.disable(gl.CULL_FACE);draw(skyMesh,T(camEye[0],camEye[1],camEye[2]));gl.enable(gl.CULL_FACE);
-  if(G.state!=='title'&&(!TPV||tpD<.7)){gl.depthRange(0,.08);draw(gunMesh,gunM);const a=P.ammo/MAG;draw(gunLedMesh,gunM,P.reload>0?[1,.5,.1]:a>.25?[.3,.9,1]:[1,.15,.1],P.reload>0?2+sin(G.t*20):1.2+a*2.5);gl.depthRange(0,1);}
+  if(G.state!=='title'&&(!TPV||tpD<.7)){gl.depthRange(0,.08);draw(gunMesh,gunM);draw(boltMesh,boltM);if(RL.magOn)draw(magMesh,magM);if(RL.u>=0)draw(handMesh,handM);const a=P.ammo/MAG;draw(gunLedMesh,gunM,P.reload>0?[1,.5,.1]:a>.25?[.3,.9,1]:[1,.15,.1],P.reload>0?2+sin(G.t*20):1.2+a*2.5);gl.depthRange(0,1);}
   // --- additive
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);gl.depthMask(false);
   gl.useProgram(PR.p);gl.uniformMatrix4fv(PR.u.uVP,false,VP);gl.uniform1f(PR.u.uTime,G.t);gl.uniform3fv(PR.u.uCam,camEye);const lk=1+G.lightning*6;gl.uniform3f(PR.u.uCol,.085*lk,.115*lk,.17*lk);
@@ -1453,7 +1499,7 @@ function onDead(){reward(false);}
 function blast(o,d,tw,hd){if(!BLR)return;for(const dr of G.drones){if(dr===hd||dr.state==='dead'||dr.state==='wreck')continue;const tt=dot(sub(dr.p,o),d);if(tt<=0||tt>tw)continue;
   if(len(sub(dr.p,add(o,scl(d,tt))))<.52+BLR){hurtDrone(dr,Math.round(GDMG*.5),d,dr.p);G.hits--;puff(dr.p,1,.25,.08);}}}
 syncOpt();syncHome();applyGear();renderShop();
-window.TCH={get TPV(){return TPV;},setView,get tpD(){return tpD;},shoulder,get SAVE(){return SAVE;},get gear(){return {GDMG,MAG,BLR,ARM};},buy,grant:n=>{SAVE.cr+=n;saveGear();renderShop();},act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
+window.TCH={RLT,RL,rlCalc,get mags(){return G.mags;},get TPV(){return TPV;},setView,get tpD(){return tpD;},shoulder,get SAVE(){return SAVE;},get gear(){return {GDMG,MAG,BLR,ARM};},buy,grant:n=>{SAVE.cr+=n;saveGear();renderShop();},act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
 
 reset();resize();
 /* debug / test hooks (自動テストとスクリーンショット用。通常プレイでは使わない) */
