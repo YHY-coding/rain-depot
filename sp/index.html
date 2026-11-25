@@ -159,6 +159,11 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
 .shop b.ng .co{color:rgba(234,223,200,.45)}.shop b.mx .co{color:rgba(234,223,200,.6)}
 .sn{font-size:10.5px;letter-spacing:.06em;color:rgba(234,223,200,.6);margin-top:8px;min-height:15px}
 .rw{font-size:13px;letter-spacing:.1em;color:#d9a441;margin:0 0 16px}
+
+/* ---- 視点の切り替え ---- */
+#bview{right:max(110px,calc(env(safe-area-inset-right) + 96px));top:10px;width:40px;height:40px;font-size:10px;letter-spacing:.04em;opacity:.55}
+#bview.on{opacity:1;border-color:#d9a441;color:#d9a441}
+#tm{right:max(164px,calc(env(safe-area-inset-right) + 150px))}
 </style>
 </head>
 <body>
@@ -187,7 +192,7 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
     </div>
     <div class="hv" data-v="settings">
       <h2 class="sh">設定</h2>
-      <div class="opt"><b data-o="fire"></b><b data-o="reload"></b><b data-o="sens"></b></div>
+      <div class="opt"><b data-o="fire"></b><b data-o="reload"></b><b data-o="sens"></b><b data-o="view"></b></div>
       <table>
         <tr><td>画面の左側をなぞる</td><td>移動(前へ大きく倒すと走る)</td></tr>
         <tr><td>画面の右側をなぞる</td><td>視点</td></tr>
@@ -203,14 +208,14 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
       <b class="bk" data-o="back">← もどる</b>
     </div>
   </section>
-  <section class="s-pause"><h2>一時停止</h2><div class="opt" style="justify-content:center;margin:4px 0 22px"><b data-o="fire"></b><b data-o="reload"></b><b data-o="home">ホームへ</b></div><div class="go">タップで再開</div></section>
+  <section class="s-pause"><h2>一時停止</h2><div class="opt" style="justify-content:center;margin:4px 0 22px"><b data-o="fire"></b><b data-o="reload"></b><b data-o="view"></b><b data-o="home">ホームへ</b></div><div class="go">タップで再開</div></section>
   <section class="s-dead"><h2>倒れた</h2><div class="en" style="margin-left:0">SIGNAL LOST</div><div class="rw" id="rwd"></div><div class="go">タップで再開</div><div class="opt" style="justify-content:center;margin-top:18px"><b data-o="home">ホームへ</b></div></section>
   <section class="s-clear"><h2>脱出</h2><div class="en" style="margin-left:0">YOU MADE IT OUT</div>
     <div class="stats"><div><small>時間</small><b class="mono" id="st1">-</b></div><div><small>命中率</small><b class="mono" id="st2">-</b></div><div><small>受けたダメージ</small><b class="mono" id="st3">-</b></div></div>
     <div class="rw" id="rwc"></div><div class="go">タップでもう一度</div><div class="opt" style="justify-content:center;margin-top:18px"><b data-o="home">ホームへ</b></div></section>
 </div>
 
-<div id="tc"><div id="stk"><i id="nub"></i></div><b id="bfire" data-b="fire">射撃</b><b id="bjump" data-b="jump">跳</b><b id="brel" data-b="reload">装填</b><b id="bpause" data-b="pause">II</b><b id="bauto" data-b="auto">自動</b></div>
+<div id="tc"><div id="stk"><i id="nub"></i></div><b id="bfire" data-b="fire">射撃</b><b id="bjump" data-b="jump">跳</b><b id="brel" data-b="reload">装填</b><b id="bpause" data-b="pause">II</b><b id="bauto" data-b="auto">自動</b><b id="bview" data-b="view">視点</b></div>
 <div id="rot"><div><small>ROTATE</small>スマホを横向きにしてください</div></div>
 <div id="gate"><div><small>MOBILE ONLY</small>これはスマホ専用版です。<br>PCでは、PC版(キーボードとマウス)を開いてください。</div></div>
 <div id="boot"><i class="rn"></i><div class="p pt"></div><div class="p pb"></div><div class="l"><h1>雨の倉庫</h1><i class="ln"></i><div class="en">RAIN DEPOT</div></div></div>
@@ -769,6 +774,18 @@ const gunMesh=(()=>{const m=new MB(),A=[.15,.16,.18],B=[.07,.075,.08];
   m.box(.03,-.2,.2,.11,.1,.36,13,[.05,.055,.06],.15);m.box(0,-.115,.09,.07,.1,.085,13,[.045,.045,.05]);
   return m.upload();})();
 const gunLedMesh=new MB().box(0,.081,.1,.012,.004,.05,5,WHITE).upload();
+const bodyMesh=(()=>{const m=new MB(),C=[.13,.155,.17],V=[.075,.085,.09],S=[.24,.22,.18];
+  m.box(0,1.13,0,.4,.56,.22,13,C);m.box(0,1.19,-.005,.43,.36,.27,13,V);m.box(0,.87,0,.4,.08,.24,13,[.03,.03,.03]);
+  m.box(0,1.19,.2,.3,.38,.15,13,S);m.box(0,1.4,.2,.26,.06,.13,13,V);m.box(.1,1.0,.21,.09,.12,.14,13,V);m.box(-.1,1.0,.21,.09,.12,.14,13,V);
+  m.box(0,1.45,0,.12,.08,.12,13,C);m.sphere(0,1.57,0,.118,.13,.128,4,[.1,.11,.12],12,7);m.box(0,1.56,-.1,.17,.05,.06,13,[.02,.02,.02]);
+  m.box(.27,1.39,0,.13,.1,.2,13,V);m.box(-.27,1.39,0,.13,.1,.2,13,V);
+  return m.upload();})();
+const legMesh=new MB().box(0,-.2,0,.16,.42,.19,13,[.1,.115,.13]).box(0,-.58,.01,.14,.36,.16,13,[.1,.115,.13]).box(0,-.8,-.035,.15,.12,.27,13,[.03,.03,.03]).box(0,-.42,-.09,.13,.1,.05,13,[.05,.055,.06]).upload();
+const armMesh=(()=>{const m=new MB(),C=[.13,.155,.17],H=[.03,.03,.03];
+  m.box(.27,-.13,-.05,.1,.3,.12,13,C);m.box(.205,-.25,-.25,.09,.09,.36,13,C,.41);m.box(.14,-.25,-.41,.08,.09,.09,13,H);
+  m.box(-.27,-.12,-.1,.1,.28,.12,13,C);m.box(-.1,-.245,-.37,.09,.09,.58,13,C,-.66);m.box(.09,-.25,-.62,.08,.08,.09,13,H);
+  return m.upload();})();
+const packLedMesh=new MB().box(0,1.3,.278,.1,.022,.008,5,WHITE).upload();
 const medMesh=(()=>{const m=new MB();m.box(0,0,0,.42,.3,.26,13,[.75,.75,.72]);m.box(0,0,.132,.2,.06,.004,5,[.2,2.2,.8]);m.box(0,0,.132,.06,.2,.004,5,[.2,2.2,.8]);m.box(0,0,-.132,.2,.06,.004,5,[.2,2.2,.8]);m.box(0,0,-.132,.06,.2,.004,5,[.2,2.2,.8]);m.box(0,.16,0,.2,.03,.04,4,STEEL);return m.upload();})();
 
 /* ============ textures ============ */
@@ -979,6 +996,26 @@ function updHud(dt){
 }
 
 /* ============ gameplay ============ */
+/* ============ 三人称視点(段階④) ============
+   カメラは右肩ごし。「肩の点」から視線のうしろへ下がる(壁に当たれば手前で止める)。
+   弾と照準の補助は「肩の点」から視線の向きへ出す → 画面中央の照準と弾の線がずれない。 */
+let TPV=false,tpD=2.6;try{TPV=localStorage.getItem('rd_tpv')==='1';}catch(e){}
+if(new URLSearchParams(location.search).has('tpv'))TPV=new URLSearchParams(location.search).get('tpv')!=='0';
+function setView(v){TPV=!!v;try{localStorage.setItem('rd_tpv',TPV?'1':'0');}catch(e){}tpD=.9;syncOpt();if(G.state==='play')msg(TPV?'三人称視点':'一人称視点',1.4);}
+function shoulder(){const e=eyePos();if(!TPV)return e;const y=P.yaw,l=hypot(.95,.35),d=[cos(y)*.95/l,.35/l,-sin(y)*.95/l];const h=rayWorld(e,d,l+.18);return add(e,scl(d,max(0,min(l,h.t-.18))));}
+function tpCam(yaw,pitch){const s=shoulder(),b=[sin(yaw)*cos(pitch),-sin(pitch),cos(yaw)*cos(pitch)];
+  const h=rayWorld(s,b,2.6+.25),want=clamp(h.t-.25,.15,2.6);tpD=want<tpD?want:tpD+(want-tpD)*.14;
+  const c=add(s,scl(b,tpD));c[1]=max(.22,c[1]);return c;}
+const PM={};
+function poseBody(){const mv=hypot(P.v[0],P.v[2]),bob=P.ground?min(1,mv/4.3):0;const e=G.state==='dead'?P.deadT*P.deadT*(3-2*P.deadT):0;
+  const B=mulN(T(P.p[0],P.p[1]+abs(sin(P.bob))*.03*bob,P.p[2]),RY(P.yaw),RX(e*1.45));
+  const sw=sin(P.bob)*.62*bob,rl=P.reload>0?sin(clamp(1-P.reload/1.45,0,1)*PI):0;
+  PM.body=B;PM.l1=mulN(B,T(.11,.86,0),RX(P.ground?sw:.3));PM.l2=mulN(B,T(-.11,.86,0),RX(P.ground?-sw:-.4));
+  PM.arm=mulN(B,T(0,1.36,0),RX(clamp(P.pitch+P.kick,-1.1,1.1)*.85+P.recoil*.05-rl*.45));
+  PM.gun=mulN(PM.arm,T(.13,-.17,-.42+P.recoil*.03),RZ(rl*.3));}
+function drawBody(){if(tpD<.7)return;const fl=P.hurt*.5;draw(bodyMesh,PM.body,WHITE,1,fl);draw(legMesh,PM.l1,WHITE,1,fl);draw(legMesh,PM.l2,WHITE,1,fl);draw(armMesh,PM.arm,WHITE,1,fl);draw(gunMesh,PM.gun);
+  const a=P.ammo/MAG,c=P.reload>0?[1,.5,.1]:a>.25?[.3,.9,1]:[1,.15,.1],k=P.reload>0?2+sin(G.t*20):1.2+a*2.5;draw(gunLedMesh,PM.gun,c,k);draw(packLedMesh,PM.body,c,k);}
+function drawBodyD(){if(tpD<.7)return;drawD(bodyMesh,PM.body);drawD(legMesh,PM.l1);drawD(legMesh,PM.l2);drawD(armMesh,PM.arm);drawD(gunMesh,PM.gun);}
 function camBasis(){const y=P.yaw,p=P.pitch+P.kick;const f=[-sin(y)*cos(p),sin(p),-cos(y)*cos(p)],r=[cos(y),0,-sin(y)];return {f,r,u:cross(r,f)};}
 function eyePos(){return [P.p[0],P.p[1]+P.eyeH,P.p[2]];}
 let muzzleW=[0,0,0];
@@ -987,7 +1024,7 @@ function shoot(){
   const {f,r,u}=camBasis();const mv=hypot(P.v[0],P.v[2]);
   const sp=.003+P.spread*.02+(mv>1?.008:0)+(P.ground?0:.02);
   const gx=(rnd()+rnd()-1),gy=(rnd()+rnd()-1);
-  const d=norm(add(f,add(scl(r,gx*sp),scl(u,gy*sp))));const o=eyePos();
+  const d=norm(add(f,add(scl(r,gx*sp),scl(u,gy*sp))));const o=shoulder();
   const w=rayWorld(o,d,200);let t=w.t,hd=null;
   for(const dr of G.drones){if(dr.state==='dead'||dr.state==='wreck')continue;const ts=raySphere(o,d,dr.p,.52);if(ts<t){t=ts;hd=dr;}}
   const hp=add(o,scl(d,t));
@@ -1152,6 +1189,7 @@ function setupCamera(){
   else{const mv=hypot(P.v[0],P.v[2]);const bob=P.ground?min(1,mv/4.3):0;const s=P.shake;
     eye=[P.p[0],P.p[1]+P.eyeH+sin(P.bob*2)*.022*bob,P.p[2]];yaw=P.yaw+(rnd()-.5)*s*.012;pitch=P.pitch+P.kick+(rnd()-.5)*s*.012;roll=P.roll+sin(P.bob)*.004*bob+(rnd()-.5)*s*.008;
     fov=68+clamp((mv-4.3)/2.1,0,1)*4+P.recoil*.6;}
+  const tp=TPV&&G.state!=='title';if(tp){eye=tpCam(yaw,pitch);roll=0;}
   CAM=mulN(T(eye[0],eye[1],eye[2]),RY(yaw),RX(pitch),RZ(roll));camEye=eye;
   const V=inv(CAM);VP=mul(persp(fov*PI/180,RW/RH,.05,300),V);IVP=inv(VP);
   camR=[CAM[0],CAM[1],CAM[2]];camU=[CAM[4],CAM[5],CAM[6]];camF=[-CAM[8],-CAM[9],-CAM[10]];camP=eye;
@@ -1159,6 +1197,7 @@ function setupCamera(){
   const rl=P.reload>0?sin(clamp(1-P.reload/1.45,0,1)*PI):0;
   gunM=mulN(CAM,T(.2+sin(P.bob)*.007*bob+P.swx,-.2+abs(cos(P.bob))*.008*bob-P.swy-rl*.16-(P.ground?0:clamp(P.v[1]*.004,-.03,.03)),-.62+P.recoil*.05),RX(P.recoil*.075-rl*.55),RY(P.swx*-2.5+.02),RZ(rl*.35+P.swx*2));
   muzzleW=xf(gunM,[0,.02,-.7]);
+  if(tp){poseBody();if(tpD>=.7)muzzleW=xf(PM.gun,[0,.02,-.7]);}
 }
 function litUniforms(vp,eye,refl){
   const u=PL.u;gl.useProgram(PL.p);gl.uniformMatrix4fv(u.uVP,false,vp);gl.uniform3fv(u.uCam,eye);gl.uniform1f(u.uTime,G.t);
@@ -1171,6 +1210,7 @@ function drawD(m,M){gl.uniformMatrix4fv(PD.u.uModel,false,M);gl.bindVertexArray(
 let REFLK=1,fcount=0;const OPT={vol:1,bloom:1,shadow:1};
 function drawScene(shM){
   draw(worldMesh,IDENT);
+  if(TPV&&G.state!=='title')drawBody();
   draw(shutterMesh,shM);
   draw(decalMesh,IDENT);
   draw(bulbMesh,T(LAMPS[2][0],6.29,LAMPS[2][1]),WHITE,G.lampK2||1);
@@ -1200,12 +1240,12 @@ function render(){
     gl.bindFramebuffer(gl.FRAMEBUFFER,shadowFB);gl.viewport(0,0,SHADOW_N,SHADOW_N);gl.clear(gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(2,4);
     gl.uniformMatrix4fv(PD.u.uVP,false,SUN_VP);gl.uniform1f(PD.u.uClipY,0);
-    drawD(worldMesh,IDENT);drawD(shutterMesh,shM);for(const d of G.drones)drawD(droneMesh,d.M);
+    drawD(worldMesh,IDENT);drawD(shutterMesh,shM);for(const d of G.drones)drawD(droneMesh,d.M);if(TPV&&G.state!=='title')drawBodyD();
     gl.disable(gl.POLYGON_OFFSET_FILL);
   }
   gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,shadowTex);
   const prepass=(vp,clip)=>{gl.useProgram(PD.p);gl.colorMask(false,false,false,false);gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,6);gl.uniformMatrix4fv(PD.u.uVP,false,vp);gl.uniform1f(PD.u.uClipY,clip);
-    drawD(worldMesh,IDENT);drawD(shutterMesh,shM);for(const d of G.drones)drawD(droneMesh,d.M);gl.colorMask(true,true,true,true);gl.disable(gl.POLYGON_OFFSET_FILL);};
+    drawD(worldMesh,IDENT);drawD(shutterMesh,shM);for(const d of G.drones)drawD(droneMesh,d.M);if(TPV&&G.state!=='title')drawBodyD();gl.colorMask(true,true,true,true);gl.disable(gl.POLYGON_OFFSET_FILL);};
   // --- planar reflection (wet floor)
   gl.activeTexture(gl.TEXTURE6);gl.bindTexture(gl.TEXTURE_2D,blackTex);
   if(REFLK>0){const VPR=mul(VP,new Float32Array([1,0,0,0,0,-1,0,0,0,0,1,0,0,0,0,1])),eyeR=[camEye[0],-camEye[1],camEye[2]];
@@ -1221,7 +1261,7 @@ function render(){
   litUniforms(VP,camEye,false);
   drawScene(shM);
   gl.disable(gl.CULL_FACE);draw(skyMesh,T(camEye[0],camEye[1],camEye[2]));gl.enable(gl.CULL_FACE);
-  if(G.state!=='title'){gl.depthRange(0,.08);draw(gunMesh,gunM);const a=P.ammo/MAG;draw(gunLedMesh,gunM,P.reload>0?[1,.5,.1]:a>.25?[.3,.9,1]:[1,.15,.1],P.reload>0?2+sin(G.t*20):1.2+a*2.5);gl.depthRange(0,1);}
+  if(G.state!=='title'&&(!TPV||tpD<.7)){gl.depthRange(0,.08);draw(gunMesh,gunM);const a=P.ammo/MAG;draw(gunLedMesh,gunM,P.reload>0?[1,.5,.1]:a>.25?[.3,.9,1]:[1,.15,.1],P.reload>0?2+sin(G.t*20):1.2+a*2.5);gl.depthRange(0,1);}
   // --- additive
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);gl.depthMask(false);
   gl.useProgram(PR.p);gl.uniformMatrix4fv(PR.u.uVP,false,VP);gl.uniform1f(PR.u.uTime,G.t);gl.uniform3fv(PR.u.uCam,camEye);const lk=1+G.lightning*6;gl.uniform3f(PR.u.uCol,.085*lk,.115*lk,.17*lk);
@@ -1310,7 +1350,7 @@ function tapState(){
    AUTO を切ると、従来どおり(射撃ボタン+弱い補助)。設定は端末内(localStorage)に残す。 */
 let AUTO=true,AUTOR=true,autoDown=false;try{AUTO=localStorage.getItem('rd_auto')!=='0';AUTOR=localStorage.getItem('rd_autor')!=='0';}catch(e){}
 /* 設定の表示をそろえる(タイトルと一時停止の両方にある切替、HUDの「自動」ボタン) */
-function syncOpt(){document.querySelectorAll('[data-o=fire]').forEach(e=>{e.textContent='自動で撃つ '+(AUTO?'オン':'オフ');e.classList.toggle('on',AUTO);});document.querySelectorAll('[data-o=reload]').forEach(e=>{e.textContent='自動リロード '+(AUTOR?'オン':'オフ');e.classList.toggle('on',AUTOR);});$('bauto').classList.toggle('on',AUTO);}
+function syncOpt(){document.querySelectorAll('[data-o=fire]').forEach(e=>{e.textContent='自動で撃つ '+(AUTO?'オン':'オフ');e.classList.toggle('on',AUTO);});document.querySelectorAll('[data-o=reload]').forEach(e=>{e.textContent='自動リロード '+(AUTOR?'オン':'オフ');e.classList.toggle('on',AUTOR);});$('bauto').classList.toggle('on',AUTO);document.querySelectorAll('[data-o=view]').forEach(e=>{e.textContent='視点 '+(TPV?'三人称':'一人称');e.classList.toggle('on',TPV);});$('bview').classList.toggle('on',TPV);}
 function setAutoR(v){AUTOR=v;try{localStorage.setItem('rd_autor',v?'1':'0');}catch(e){}syncOpt();}
 function setAuto(v){AUTO=v;try{localStorage.setItem('rd_auto',v?'1':'0');}catch(e){}syncOpt();if(G.state==='play')msg(v?'自動射撃 オン':'自動射撃 オフ',1.4);}
 let rgHp=100,rgT=0,rgAcc=0;
@@ -1318,7 +1358,7 @@ function aimAssist(dt){
   autoDown=false;if(G.state!=='play')return;
   /* 体力の自然回復: 4秒間 被弾がなければ、毎秒10ずつ戻る(スマホ版だけ) */
   if(P.hp<rgHp){rgT=4;rgAcc=0;}else if(P.hp<100){rgT-=dt;if(rgT<=0){rgAcc+=10*dt;while(rgAcc>=1&&P.hp<100){P.hp++;rgAcc--;}}}rgHp=P.hp;
-  if(!AUTO&&!AUTOR&&!mouse.down&&lookId===null)return;const e=eyePos();let best=null,bd=AUTO?.34:.2;
+  if(!AUTO&&!AUTOR&&!mouse.down&&lookId===null)return;const e=shoulder();let best=null,bd=AUTO?.34:.2;
   for(const d of G.drones){if(d.state!=='combat'&&d.state!=='idle')continue;const v=norm(sub(d.p,e));
     let dy=atan2(-v[0],-v[2])-P.yaw;dy=atan2(sin(dy),cos(dy));const dp=Math.asin(v[1])-(P.pitch+P.kick);const a=hypot(dy,dp);if(a<bd&&los(e,d.p)){bd=a;best=[dy,dp];}}
   if(best){if(AUTO||mouse.down||lookId!==null){const k=min(1,dt*(AUTO?6:(mouse.down?5:1.6)));P.yaw+=best[0]*k;P.pitch=clamp(P.pitch+best[1]*k,-1.5,1.5);}
@@ -1334,6 +1374,7 @@ addEventListener('touchstart',e=>{e.preventDefault();
     else if(k==='reload'){startReload();}
     else if(k==='pause'){pauseGame();return;}
     else if(k==='auto'){setAuto(!AUTO);}
+    else if(k==='view'){setView(!TPV);}
     else if(t.clientX<innerWidth*.45&&stickId===null){stickId=t.identifier;sx=t.clientX;sy=t.clientY;stk.style.display='block';stk.style.left=sx+'px';stk.style.top=sy+'px';nub.style.transform='translate(0px,0px)';}
     else if(lookId===null){lookId=t.identifier;lx=t.clientX;ly=t.clientY;}
   }
@@ -1372,7 +1413,7 @@ function goHome(){relAll();reset();G.state='title';view('main');overlay('title')
 function act(o,el){
   if(o==='buy'){buy(el.dataset.k);return;}
   if(o==='battle'||o==='retry'){if(portrait())return;relAll();startGame(true);return;}
-  if(o==='fire')setAuto(!AUTO);else if(o==='reload')setAutoR(!AUTOR);
+  if(o==='view')setView(!TPV);else if(o==='fire')setAuto(!AUTO);else if(o==='reload')setAutoR(!AUTOR);
   else if(o==='sens'){sensI=(sensI+1)%3;SENS=SENSV[sensI];try{localStorage.setItem('rd_sens',String(sensI));}catch(e){}syncHome();}
   else if(o==='gear'||o==='settings')view(o);else if(o==='back')view('main');else if(o==='home')goHome();
   initAudio();SFX.ui();
@@ -1412,7 +1453,7 @@ function onDead(){reward(false);}
 function blast(o,d,tw,hd){if(!BLR)return;for(const dr of G.drones){if(dr===hd||dr.state==='dead'||dr.state==='wreck')continue;const tt=dot(sub(dr.p,o),d);if(tt<=0||tt>tw)continue;
   if(len(sub(dr.p,add(o,scl(d,tt))))<.52+BLR){hurtDrone(dr,Math.round(GDMG*.5),d,dr.p);G.hits--;puff(dr.p,1,.25,.08);}}}
 syncOpt();syncHome();applyGear();renderShop();
-window.TCH={get SAVE(){return SAVE;},get gear(){return {GDMG,MAG,BLR,ARM};},buy,grant:n=>{SAVE.cr+=n;saveGear();renderShop();},act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
+window.TCH={get TPV(){return TPV;},setView,get tpD(){return tpD;},shoulder,get SAVE(){return SAVE;},get gear(){return {GDMG,MAG,BLR,ARM};},buy,grant:n=>{SAVE.cr+=n;saveGear();renderShop();},act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
 
 reset();resize();
 /* debug / test hooks (自動テストとスクリーンショット用。通常プレイでは使わない) */
