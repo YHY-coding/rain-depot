@@ -163,7 +163,12 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
 /* ---- 視点の切り替え ---- */
 #bview{right:max(110px,calc(env(safe-area-inset-right) + 96px));top:10px;width:40px;height:40px;font-size:10px;letter-spacing:.04em;opacity:.55}
 #bview.on{opacity:1;border-color:#d9a441;color:#d9a441}
-#tm{right:max(164px,calc(env(safe-area-inset-right) + 150px))}
+#bpause{width:48px;height:48px}
+#bauto{right:max(74px,calc(env(safe-area-inset-right) + 60px));width:48px;height:48px}
+#bview{right:max(134px,calc(env(safe-area-inset-right) + 120px));width:48px;height:48px}
+#tc #bpause,#tc #bauto,#tc #bview{font-size:14px}
+#tm{right:max(194px,calc(env(safe-area-inset-right) + 180px))}
+.s-title .snd{margin-top:8px;font-size:14px;opacity:.6;letter-spacing:.04em}
 #rlb{position:absolute;left:50%;top:calc(50% + 26px);width:64px;height:3px;margin-left:-32px;background:rgba(0,0,0,.5);opacity:0;transition:opacity .12s}
 #rlb.on{opacity:1}
 #rlb i{display:block;height:100%;width:0;background:#ffb04a}
@@ -203,6 +208,7 @@ table{font-size:12px;margin-bottom:14px}td{padding:3px 16px 3px 0}
         <b data-o="settings"><i>03</i>設定<small>自動で撃つ・視点の速さ・操作</small></b>
       </div>
       <div class="rec">最短 <span id="rbest">--</span> / 脱出 <span id="rclr">0</span> 回</div>
+      <div class="snd">音が出ないときは、消音スイッチを確認</div>
     </div>
     <div class="hv" data-v="settings">
       <h2 class="sh">設定</h2>
@@ -1151,7 +1157,7 @@ function updatePlayer(dt){aimAssist(dt);
   if(P.ground&&mv>1){P.bob+=mv*dt*1.9;P.stepT+=mv*dt;if(P.stepT>2.3){P.stepT=0;SFX.step(run);}}
   P.cool-=dt;
   if(P.reload>0){P.reload-=dt;rlEvents();if(P.reload<=0){P.ammo=MAG;P.reload=0;}}
-  else if((mouse.down||autoDown)&&P.cool<=0){if(P.ammo>0)shoot();else{SFX.empty();P.cool=.25;if(AUTOR)startReload();}}
+  else if((mouse.down||autoDown)&&P.cool<=0){if(P.ammo>0)shoot();else{SFX.empty();P.cool=.25;startReload();}}
   P.spread=max(0,P.spread-dt*2.6);P.recoil*=exp(-dt*13);P.kick*=exp(-dt*7);P.hurt=max(0,P.hurt-dt*1.6);
   P.swx*=exp(-dt*9);P.swy*=exp(-dt*9);
   for(const m of G.meds)if(m.on&&P.hp<100&&hypot(m.p[0]-P.p[0],m.p[2]-P.p[2])<1.1&&abs(P.p[1])<1.2){m.on=false;P.hp=min(100,P.hp+35);SFX.pickup();msg('体力 +35',1.6);}
@@ -1439,12 +1445,12 @@ function aimAssist(dt){
   autoDown=false;if(G.state!=='play')return;
   /* 体力の自然回復: 4秒間 被弾がなければ、毎秒10ずつ戻る(スマホ版だけ) */
   if(P.hp<rgHp){rgT=4;rgAcc=0;}else if(P.hp<100){rgT-=dt;if(rgT<=0){rgAcc+=10*dt;while(rgAcc>=1&&P.hp<100){P.hp++;rgAcc--;}}}rgHp=P.hp;
-  if(!AUTO&&!AUTOR&&!mouse.down&&lookId===null)return;const e=shoulder();let best=null,bd=AUTO?.34:.2;
+  if(!AUTO&&!AUTOR&&!mouse.down&&lookId===null)return;const e=shoulder();let best=null,near=false,bd=AUTO?.34:.2;
   for(const d of G.drones){if(d.state!=='combat'&&d.state!=='idle')continue;const v=norm(sub(d.p,e));
-    let dy=atan2(-v[0],-v[2])-P.yaw;dy=atan2(sin(dy),cos(dy));const dp=Math.asin(v[1])-(P.pitch+P.kick);const a=hypot(dy,dp);if(a<bd&&los(e,d.p)){bd=a;best=[dy,dp];}}
+    let dy=atan2(-v[0],-v[2])-P.yaw;dy=atan2(sin(dy),cos(dy));const dp=Math.asin(v[1])-(P.pitch+P.kick);const a=hypot(dy,dp);if(a<bd&&los(e,d.p)){bd=a;best=[dy,dp];}else if(!near&&d.state==='combat'&&a<.9&&los(e,d.p))near=true;}
   if(best){if(AUTO||mouse.down||lookId!==null){const k=min(1,dt*(AUTO?6:(mouse.down?5:1.6)));P.yaw+=best[0]*k;P.pitch=clamp(P.pitch+best[1]*k,-1.5,1.5);}
     if(AUTO&&bd<.09&&P.reload<=0)autoDown=true;}
-  else if(AUTOR&&P.ammo<MAG/2&&P.reload<=0)startReload();
+  else if(AUTOR&&P.reload<=0&&(P.ammo<=0||(P.ammo<MAG/2&&!near)))startReload();
 }
 addEventListener('touchstart',e=>{e.preventDefault();
   if(G.state!=='play'){tapOK=true;const t0=e.changedTouches[0].target;tapEl=t0&&t0.closest?t0.closest('[data-o]'):null;return;}
@@ -1519,7 +1525,7 @@ function saveGear(){try{localStorage.setItem('rd_save',JSON.stringify(SAVE));}ca
 function renderShop(note){
   $('crn').textContent=SAVE.cr+' CR';$('gcr').textContent='所持 '+SAVE.cr+' CR';
   $('shop').innerHTML=ITEMS.map(it=>{const l=SAVE.lv[it.k],mx=l>=3,c=mx?0:it.c[l];
-    return '<b data-o="buy" data-k="'+it.k+'" class="'+(mx?'mx':SAVE.cr>=c?'ok':'ng')+'"><span class="nm">'+it.n+'<em>'+'■'.repeat(l)+'□'.repeat(3-l)+'</em></span><span class="ds">'+it.d+' '+it.f(it.v[l])+(mx?'':' → '+it.f(it.v[l+1]))+'</span><span class="co">'+(mx?'最大':c+' CR')+'</span></b>';}).join('');
+    return '<b data-o="buy" data-k="'+it.k+'" class="'+(mx?'mx':SAVE.cr>=c?'ok':'ng')+'"><span class="nm">'+it.n+'<em>'+'■'.repeat(l)+'□'.repeat(3-l)+'</em></span><span class="ds">'+it.d+' '+it.f(it.v[l])+(mx?'':' → '+it.f(it.v[l+1]))+(it.k==='dmg'?'(撃破まで '+Math.ceil(140/it.v[l])+'発'+(mx?'':' → '+Math.ceil(140/it.v[l+1])+'発')+')':'')+'</span><span class="co">'+(mx?'最大':c+' CR')+'</span></b>';}).join('');
   if(note)$('shopn').textContent=note;
 }
 function buy(k){const it=ITEMS.find(i=>i.k===k);if(!it)return;const l=SAVE.lv[k];initAudio();
