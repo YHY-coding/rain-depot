@@ -1441,13 +1441,14 @@ function syncOpt(){document.querySelectorAll('[data-o=fire]').forEach(e=>{e.text
 function setAutoR(v){AUTOR=v;try{localStorage.setItem('rd_autor',v?'1':'0');}catch(e){}syncOpt();}
 function setAuto(v){AUTO=v;try{localStorage.setItem('rd_auto',v?'1':'0');}catch(e){}syncOpt();if(G.state==='play')msg(v?'自動射撃 オン':'自動射撃 オフ',1.4);}
 let rgHp=100,rgT=0,rgAcc=0;
+let ACONE=.45;
 function aimAssist(dt){
   autoDown=false;if(G.state!=='play')return;
   /* 体力の自然回復: 4秒間 被弾がなければ、毎秒10ずつ戻る(スマホ版だけ) */
   if(P.hp<rgHp){rgT=4;rgAcc=0;}else if(P.hp<100){rgT-=dt;if(rgT<=0){rgAcc+=10*dt;while(rgAcc>=1&&P.hp<100){P.hp++;rgAcc--;}}}rgHp=P.hp;
-  if(!AUTO&&!AUTOR&&!mouse.down&&lookId===null)return;const e=shoulder();let best=null,near=false,bd=AUTO?.34:.2;
+  if(!AUTO&&!AUTOR&&!mouse.down&&lookId===null)return;const e=shoulder();let best=null,near=false,bd=AUTO?ACONE:.2;
   for(const d of G.drones){if(d.state!=='combat'&&d.state!=='idle')continue;const v=norm(sub(d.p,e));
-    let dy=atan2(-v[0],-v[2])-P.yaw;dy=atan2(sin(dy),cos(dy));const dp=Math.asin(v[1])-(P.pitch+P.kick);const a=hypot(dy,dp);if(a<bd&&los(e,d.p)){bd=a;best=[dy,dp];}else if(!near&&d.state==='combat'&&a<.9&&los(e,d.p))near=true;}
+    let dy=atan2(-v[0],-v[2])-P.yaw;dy=atan2(sin(dy),cos(dy));const dp=Math.asin(v[1])-(P.pitch+P.kick);const a=hypot(dy,dp);if(a<bd&&(a<.34||d.state==='combat')&&los(e,d.p)){bd=a;best=[dy,dp];}else if(!near&&d.state==='combat'&&a<.9&&los(e,d.p))near=true;}
   if(best){if(AUTO||mouse.down||lookId!==null){const k=min(1,dt*(AUTO?6:(mouse.down?5:1.6)));P.yaw+=best[0]*k;P.pitch=clamp(P.pitch+best[1]*k,-1.5,1.5);}
     if(AUTO&&bd<.09&&P.reload<=0)autoDown=true;}
   else if(AUTOR&&P.reload<=0&&(P.ammo<=0||(P.ammo<MAG/2&&!near)))startReload();
@@ -1540,7 +1541,7 @@ function onDead(){reward(false);}
 function blast(o,d,tw,hd){if(!BLR)return;for(const dr of G.drones){if(dr===hd||dr.state==='dead'||dr.state==='wreck')continue;const tt=dot(sub(dr.p,o),d);if(tt<=0||tt>tw)continue;
   if(len(sub(dr.p,add(o,scl(d,tt))))<.52+BLR){hurtDrone(dr,Math.round(GDMG*.5),d,dr.p);G.hits--;puff(dr.p,1,.25,.08);}}}
 syncOpt();syncHome();applyGear();renderShop();
-window.TCH={dmgNum,fxKill,RLT,RL,rlCalc,get mags(){return G.mags;},get TPV(){return TPV;},setView,get tpD(){return tpD;},shoulder,get SAVE(){return SAVE;},get gear(){return {GDMG,MAG,BLR,ARM};},buy,grant:n=>{SAVE.cr+=n;saveGear();renderShop();},act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
+window.TCH={get cone(){return ACONE;},set cone(v){ACONE=v;},los,eyePos,rayWorld,dmgNum,fxKill,RLT,RL,rlCalc,get mags(){return G.mags;},get TPV(){return TPV;},setView,get tpD(){return tpD;},shoulder,get SAVE(){return SAVE;},get gear(){return {GDMG,MAG,BLR,ARM};},buy,grant:n=>{SAVE.cr+=n;saveGear();renderShop();},act,goHome,view,endBoot,get REC(){return REC;},get SENS(){return SENS;},get AUTO(){return AUTO;},get AUTOR(){return AUTOR;},setAuto,setAutoR,TS,relAll,pauseGame,tapState,ids:()=>({stickId,lookId,fireId,jumpId})};
 
 reset();resize();
 /* debug / test hooks (自動テストとスクリーンショット用。通常プレイでは使わない) */
